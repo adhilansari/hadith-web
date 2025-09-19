@@ -1,38 +1,26 @@
-// components/layout/ThemeProvider.tsx
 'use client';
 
 import { useEffect } from 'react';
-import { useSettings } from '@/lib/hooks/useSettings';
+import { useSettings } from './useSettings';
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-    const { theme, _hasHydrated } = useSettings();
+export function useTheme() {
+    const { theme, setTheme } = useSettings();
 
     useEffect(() => {
-        // Only apply theme changes after hydration is complete
-        if (!_hasHydrated) return;
-
         const root = window.document.documentElement;
 
         // Remove all theme classes first
         root.classList.remove('light', 'dark', 'theme-blue', 'theme-emerald', 'theme-purple');
 
-        console.log('ThemeProvider applying theme:', theme);
-
         if (theme === 'system') {
             const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            console.log('System theme detected:', systemTheme);
             root.classList.add(systemTheme);
         } else if (theme === 'light' || theme === 'dark') {
-            console.log('Applying basic theme:', theme);
             root.classList.add(theme);
         } else if (theme === 'blue' || theme === 'emerald' || theme === 'purple') {
-            // For colored themes, apply dark mode and theme class
-            console.log('Applying colored theme: dark +', `theme-${theme}`);
+            // For colored themes, apply dark mode AND the specific theme class
             root.classList.add('dark', `theme-${theme}`);
         }
-
-        // Debug: log current classes
-        console.log('Current root classes:', root.className);
 
         // Set meta theme-color for mobile browsers
         const metaThemeColor = document.querySelector('meta[name="theme-color"]');
@@ -48,23 +36,41 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
             metaThemeColor.setAttribute('content', themeColor);
         }
-    }, [theme, _hasHydrated]);
+    }, [theme]);
 
-    // Listen for system theme changes only when theme is 'system'
+    // Listen for system theme changes
     useEffect(() => {
-        if (!_hasHydrated || theme !== 'system') return;
+        if (theme !== 'system') return;
 
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
         const handleChange = (e: MediaQueryListEvent) => {
             const root = window.document.documentElement;
             root.classList.remove('light', 'dark');
             root.classList.add(e.matches ? 'dark' : 'light');
-            console.log('System theme changed to:', e.matches ? 'dark' : 'light');
         };
 
         mediaQuery.addEventListener('change', handleChange);
         return () => mediaQuery.removeEventListener('change', handleChange);
-    }, [theme, _hasHydrated]);
+    }, [theme]);
 
-    return <>{children}</>;
+    const toggleTheme = () => {
+        const themes = ['light', 'dark', 'system'] as const;
+        const currentIndex = themes.indexOf(theme as any);
+        const nextIndex = (currentIndex + 1) % themes.length;
+        setTheme(themes[nextIndex]);
+    };
+
+    const cycleColorThemes = () => {
+        const colorThemes = ['blue', 'emerald', 'purple'] as const;
+        const currentIndex = colorThemes.indexOf(theme as any);
+        const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % colorThemes.length;
+        setTheme(colorThemes[nextIndex]);
+    };
+
+    return {
+        theme,
+        setTheme,
+        toggleTheme,
+        cycleColorThemes,
+    };
 }
