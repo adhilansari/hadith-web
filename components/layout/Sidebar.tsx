@@ -1,7 +1,7 @@
-// components/layout/Sidebar.tsx (Enhanced with new theme system)
+// Enhanced Sidebar with better PWA install logic and debugging
 'use client';
 
-import { X, Settings, Book, Palette, Type, Moon, Sun, Monitor, Download, Smartphone, Share } from 'lucide-react';
+import { X, Settings, Book, Palette, Type, Moon, Sun, Monitor, Download, Smartphone, Share, Bug } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useSettings } from '@/lib/hooks/useSettings';
@@ -17,6 +17,7 @@ interface SidebarProps {
 export function Sidebar({ open, onClose }: SidebarProps) {
     const [isClient, setIsClient] = useState(false);
     const [showIOSInstructions, setShowIOSInstructions] = useState(false);
+    const [showDebug, setShowDebug] = useState(false);
     const settings = useSettings();
     const pwa = usePWAInstall();
     const { theme, setTheme, getAllThemes } = useTheme();
@@ -24,7 +25,15 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     // Ensure we're on the client side
     useEffect(() => {
         setIsClient(true);
-    }, []);
+
+        // Debug logging
+        console.log('Sidebar mounted, PWA state:', {
+            canInstall: pwa.canInstall,
+            isInstalled: pwa.isInstalled,
+            isInstallable: pwa.isInstallable,
+            hasPrompt: !!pwa.installPrompt
+        });
+    }, [pwa]);
 
     const {
         fontSize,
@@ -57,25 +66,70 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         setArabicFontSize(newSize);
     }, [setArabicFontSize]);
 
+    // Enhanced PWA install handler
     const handlePWAInstall = useCallback(async () => {
-        // Check if it's iOS Safari
-        const isIOSSafari = /iPad|iPhone|iPod/.test(navigator.userAgent) &&
-            !('MSStream' in window);
+        console.log('PWA Install clicked', {
+            isIOSSafari: isIOSSafari(),
+            canInstall: pwa.canInstall,
+            isInstalled: pwa.isInstalled,
+            hasPrompt: !!pwa.installPrompt
+        });
 
-        if (isIOSSafari) {
+        // Check if it's iOS Safari
+        if (isIOSSafari()) {
             setShowIOSInstructions(true);
             return;
         }
 
         // For other browsers, use the standard install prompt
-        const installed = await pwa.installPWA();
-        if (installed) {
-            console.log('App installed successfully!');
+        try {
+            const installed = await pwa.installPWA();
+            if (installed) {
+                console.log('App installed successfully!');
+            } else {
+                console.log('Installation was cancelled or failed');
+            }
+        } catch (error) {
+            console.error('Installation error:', error);
         }
     }, [pwa]);
 
-    // Check if device is iOS
-    const isIOS = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
+    // Better iOS detection
+    const isIOSSafari = useCallback(() => {
+        if (typeof navigator === 'undefined') return false;
+
+        const userAgent = navigator.userAgent;
+        const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+        const isSafari = /Safari/.test(userAgent) && !/Chrome|CriOS|FxiOS|EdgiOS/.test(userAgent);
+
+        return isIOS && isSafari;
+    }, []);
+
+    // Enhanced condition for showing install option
+    const shouldShowInstallOption = () => {
+        // Always show for iOS Safari (manual installation)
+        if (isIOSSafari() && !pwa.isInstalled) {
+            return true;
+        }
+
+        // Show if can install via browser prompt
+        if (pwa.canInstall) {
+            return true;
+        }
+
+        // Show if installable but not installed (broader check)
+        if (pwa.isInstallable && !pwa.isInstalled) {
+            return true;
+        }
+
+        // For development - always show on localhost
+        if (typeof window !== 'undefined' &&
+            (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+            return !pwa.isInstalled;
+        }
+
+        return false;
+    };
 
     // Get theme icon
     const getThemeIcon = (themeKey: string) => {
@@ -127,15 +181,56 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                             <Settings className="w-5 h-5 text-primary" />
                             <h2 className="text-lg font-semibold text-foreground">Settings</h2>
                         </div>
-                        <Button variant="ghost" size="sm" onClick={onClose}>
-                            <X className="w-5 h-5" />
-                        </Button>
+                        <div className="flex gap-2">
+                            {/* Debug Toggle (only in development) */}
+                            {process.env.NODE_ENV === 'development' && (
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setShowDebug(!showDebug)}
+                                    title="Toggle PWA Debug"
+                                >
+                                    <Bug className="w-4 h-4" />
+                                </Button>
+                            )}
+                            <Button variant="ghost" size="sm" onClick={onClose}>
+                                <X className="w-5 h-5" />
+                            </Button>
+                        </div>
                     </div>
 
                     <div className="space-y-6">
 
-                        {/* PWA Install Section */}
-                        {(pwa.canInstall || (!pwa.isInstalled && isIOS)) && !showIOSInstructions && (
+                        {/* Debug Panel (Development only) */}
+                        {showDebug && process.env.NODE_ENV === 'development' && (
+                            <Card className="bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Bug className="w-4 h-4 text-red-500" />
+                                    <h3 className="font-medium text-red-700 dark:text-red-300">PWA Debug</h3>
+                                </div>
+                                <div className="text-xs text-red-600 dark:text-red-400 space-y-1">
+                                    <div>Can Install: {pwa.canInstall ? '✅' : '❌'}</div>
+                                    <div>Is Installed: {pwa.isInstalled ? '✅' : '❌'}</div>
+                                    <div>Is Installable: {pwa.isInstallable ? '✅' : '❌'}</div>
+                                    <div>Has Prompt: {pwa.installPrompt ? '✅' : '❌'}</div>
+                                    <div>Should Show: {shouldShowInstallOption() ? '✅' : '❌'}</div>
+                                    <div>iOS Safari: {isIOSSafari() ? '✅' : '❌'}</div>
+                                    <div>Protocol: {typeof window !== 'undefined' ? window.location.protocol : 'N/A'}</div>
+                                    <div>Host: {typeof window !== 'undefined' ? window.location.hostname : 'N/A'}</div>
+                                </div>
+                                <Button
+                                    onClick={() => console.log('PWA Debug Info:', pwa.getDebugInfo())}
+                                    size="sm"
+                                    variant="ghost"
+                                    className="w-full mt-2 text-xs"
+                                >
+                                    Log Full Debug Info
+                                </Button>
+                            </Card>
+                        )}
+
+                        {/* PWA Install Section - Enhanced Logic */}
+                        {shouldShowInstallOption() && !showIOSInstructions && (
                             <Card className="border-primary/20 bg-primary/5">
                                 <div className="flex items-center gap-2 mb-3">
                                     <Smartphone className="w-4 h-4 text-primary" />
@@ -152,10 +247,50 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                                     className="w-full"
                                 >
                                     <Download className="w-4 h-4 mr-2" />
-                                    {pwa.isInstalling ? 'Installing...' : isIOS ? 'Install Instructions' : 'Install App'}
+                                    {pwa.isInstalling
+                                        ? 'Installing...'
+                                        : isIOSSafari()
+                                            ? 'Show Install Instructions'
+                                            : 'Install App'
+                                    }
                                 </Button>
+
+                                {/* Additional info for different scenarios */}
+                                {!pwa.canInstall && !isIOSSafari() && (
+                                    <p className="text-xs text-muted-foreground mt-2">
+                                        {pwa.isInstallable
+                                            ? "Install prompt will appear when conditions are met"
+                                            : "Your browser supports PWA installation"
+                                        }
+                                    </p>
+                                )}
                             </Card>
                         )}
+
+                        {/* Force Show Install Option (Development Only) */}
+                        {process.env.NODE_ENV === 'development' &&
+                            !shouldShowInstallOption() &&
+                            !pwa.isInstalled && (
+                                <Card className="border-yellow-500/20 bg-yellow-500/5">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <Bug className="w-4 h-4 text-yellow-500" />
+                                        <h3 className="font-medium text-foreground">Force Install (Dev)</h3>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground mb-4">
+                                        This install option is hidden normally. Showing for development testing.
+                                    </p>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={handlePWAInstall}
+                                        disabled={pwa.isInstalling}
+                                        className="w-full border border-yellow-500/20"
+                                    >
+                                        <Download className="w-4 h-4 mr-2" />
+                                        Test Install
+                                    </Button>
+                                </Card>
+                            )}
 
                         {/* iOS Install Instructions */}
                         {showIOSInstructions && (
@@ -197,6 +332,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                             </Card>
                         )}
 
+                        {/* Rest of your existing components... */}
                         {/* Theme Selection */}
                         <Card>
                             <div className="flex items-center gap-2 mb-4">

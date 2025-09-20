@@ -95,7 +95,6 @@ export const useSettingsStore = create<SettingsStore>()(
 
             // Theme actions - REMOVED DOM manipulation from here
             setTheme: (theme) => {
-                console.log('useSettings: Setting theme to', theme);
                 set({ theme });
                 // Theme application is now handled by ThemeProvider
             },

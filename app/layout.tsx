@@ -3,6 +3,7 @@ import { ThemeProvider } from '@/components/layout/ThemeProvider';
 import { SearchProvider } from '@/components/search/SearchProvider';
 import { Header } from '@/components/layout/Header';
 import '@/styles/globals.css';
+import { PWAInstaller } from '@/components/PWAInstaller';
 
 export const metadata: Metadata = {
   title: 'Hadith.net - Authentic Islamic Hadith Collections',
@@ -30,15 +31,16 @@ export const metadata: Metadata = {
     title: 'Hadith.net - Authentic Islamic Hadith Collections',
     description: 'Read authentic Hadith collections with translations in multiple languages.',
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Hadith.net - Authentic Islamic Hadith Collections',
-    description: 'Read authentic Hadith collections with translations in multiple languages.',
-  },
   icons: {
-    icon: '/icons/icon-192x192.png',
+    icon: [
+      { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+    ],
     shortcut: '/icons/icon-192x192.png',
-    apple: '/icons/icon-192x192.png',
+    apple: [
+      { url: '/icons/icon-152x152.png', sizes: '152x152', type: 'image/png' },
+      { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+    ],
   },
 };
 
@@ -51,6 +53,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({
@@ -62,6 +65,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen bg-background font-sans antialiased">
         <ThemeProvider>
+          <PWAInstaller />
           <SearchProvider>
             <div className="relative flex min-h-screen flex-col">
               <Header />

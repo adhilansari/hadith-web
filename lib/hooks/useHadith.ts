@@ -213,15 +213,6 @@ export function useBookPage(book: string, language: string = 'eng') {
             key.toLowerCase() === book.toLowerCase()
         );
 
-    console.log('useBookPage status:', {
-        book,
-        language,
-        isLoading,
-        error: error?.message,
-        bookExists,
-        availableBooks: editionsQuery.data ? Object.keys(editionsQuery.data) : null
-    });
-
     return {
         editions: editionsQuery.data,
         bookData: hadithDataQuery.data,

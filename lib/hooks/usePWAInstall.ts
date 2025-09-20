@@ -2,21 +2,27 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import type { IBeforeInstallPromptEvent } from '@/lib/types/hadith';
 
 interface PWAInstallState {
     isInstallable: boolean;
     isInstalled: boolean;
     isInstalling: boolean;
-    installPrompt: IBeforeInstallPromptEvent | null;
+    installPrompt: BeforeInstallPromptEvent | null;
 }
 
-interface NavigatorWithStandalone extends Navigator {
-    standalone?: boolean;
+interface BeforeInstallPromptEvent extends Event {
+    platforms: string[];
+    userChoice: Promise<{
+        outcome: 'accepted' | 'dismissed';
+        platform: string;
+    }>;
+    prompt(): Promise<void>;
 }
 
-interface WindowWithMSStream extends Window {
-    MSStream?: unknown;
+declare global {
+    interface WindowEventMap {
+        beforeinstallprompt: BeforeInstallPromptEvent;
+    }
 }
 
 export function usePWAInstall() {
@@ -27,20 +33,24 @@ export function usePWAInstall() {
         installPrompt: null,
     });
 
-    // Check if app is already installed
     const checkIfInstalled = useCallback(() => {
         if (typeof window === 'undefined') return false;
 
-        // Check if running in standalone mode (installed PWA)
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-            || ('standalone' in navigator && (navigator as NavigatorWithStandalone).standalone === true)
-            || document.referrer.includes('android-app://');
+        // Check for standalone mode
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+            (window.navigator as NavigatorWithStandalone).standalone === true ||
+            document.referrer.includes('android-app://');
 
         return isStandalone;
     }, []);
 
-    // Install the PWA
+    interface NavigatorWithStandalone extends Navigator {
+        standalone?: boolean;
+    }
+
     const installPWA = useCallback(async () => {
+        console.log('InstallPWA called, prompt available:', !!state.installPrompt);
+
         if (!state.installPrompt) {
             console.warn('Install prompt not available');
             return false;
@@ -49,11 +59,9 @@ export function usePWAInstall() {
         setState(prev => ({ ...prev, isInstalling: true }));
 
         try {
-            // Show the install prompt
             await state.installPrompt.prompt();
-
-            // Wait for user choice
             const choiceResult = await state.installPrompt.userChoice;
+            console.log('User choice:', choiceResult);
 
             if (choiceResult.outcome === 'accepted') {
                 console.log('PWA installation accepted');
@@ -77,7 +85,6 @@ export function usePWAInstall() {
         }
     }, [state.installPrompt]);
 
-    // Dismiss the install prompt
     const dismissInstall = useCallback(() => {
         setState(prev => ({
             ...prev,
@@ -87,33 +94,33 @@ export function usePWAInstall() {
     }, []);
 
     useEffect(() => {
-        // Check if already installed
+        if (typeof window === 'undefined') return;
+
+        console.log('PWA Hook: Initializing...');
+
         const isInstalled = checkIfInstalled();
+        console.log('Is app installed?', isInstalled);
+
         if (isInstalled) {
             setState(prev => ({ ...prev, isInstalled: true }));
             return;
         }
 
-        // Listen for the beforeinstallprompt event
-        const handleBeforeInstallPrompt = (e: Event) => {
-            const installEvent = e as IBeforeInstallPromptEvent;
+        let deferredPrompt: BeforeInstallPromptEvent | null = null;
 
-            // Prevent Chrome 67 and earlier from automatically showing the prompt
+        const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
+            console.log('beforeinstallprompt event fired!');
             e.preventDefault();
-
-            // Save the event so it can be triggered later
+            deferredPrompt = e;
             setState(prev => ({
                 ...prev,
                 isInstallable: true,
-                installPrompt: installEvent,
+                installPrompt: e,
             }));
-
-            console.log('PWA install prompt available');
         };
 
-        // Listen for successful app installation
         const handleAppInstalled = () => {
-            console.log('PWA was installed successfully');
+            console.log('appinstalled event fired');
             setState(prev => ({
                 ...prev,
                 isInstalled: true,
@@ -121,35 +128,64 @@ export function usePWAInstall() {
                 installPrompt: null,
                 isInstalling: false,
             }));
+            deferredPrompt = null;
         };
 
-        // Add event listeners
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
         window.addEventListener('appinstalled', handleAppInstalled);
 
-        // Check for iOS Safari install capability
+        // Check for iOS Safari
         const isIOSSafari = /iPad|iPhone|iPod/.test(navigator.userAgent) &&
-            !(window as WindowWithMSStream).MSStream &&
-            !checkIfInstalled();
+            /Safari/.test(navigator.userAgent) &&
+            !/CriOS/.test(navigator.userAgent) &&
+            !/FxiOS/.test(navigator.userAgent);
 
-        if (isIOSSafari) {
-            setState(prev => ({
-                ...prev,
-                isInstallable: true
-            }));
+        if (isIOSSafari && !isInstalled) {
+            console.log('iOS Safari detected - enabling manual install');
+            setState(prev => ({ ...prev, isInstallable: true }));
         }
 
-        // Cleanup
+        // Register service worker if not already done
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                .then(registration => {
+                    console.log('Service Worker registered from hook:', registration);
+                })
+                .catch(error => {
+                    console.error('Service Worker registration failed:', error);
+                });
+        }
+
         return () => {
             window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
             window.removeEventListener('appinstalled', handleAppInstalled);
         };
     }, [checkIfInstalled]);
 
+    const getDebugInfo = useCallback(() => {
+        if (typeof window === 'undefined') return {};
+
+        return {
+            isInstallable: state.isInstallable,
+            isInstalled: state.isInstalled,
+            isInstalling: state.isInstalling,
+            hasPrompt: !!state.installPrompt,
+            canInstall: state.isInstallable && !state.isInstalled && !state.isInstalling,
+            userAgent: navigator.userAgent,
+            protocol: window.location.protocol,
+            hostname: window.location.hostname,
+            isStandalone: window.matchMedia('(display-mode: standalone)').matches,
+            serviceWorkerSupported: 'serviceWorker' in navigator,
+            referrer: document.referrer,
+            manifestPresent: document.querySelector('link[rel="manifest"]') !== null,
+        };
+    }, [state]);
+
     return {
         ...state,
         installPWA,
         dismissInstall,
         canInstall: state.isInstallable && !state.isInstalled && !state.isInstalling,
+        getDebugInfo
     };
 }
