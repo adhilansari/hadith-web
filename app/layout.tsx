@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { ThemeProvider } from '@/components/layout/ThemeProvider';
+import { SearchProvider } from '@/components/search/SearchProvider';
 import { Header } from '@/components/layout/Header';
 import '@/styles/globals.css';
 
@@ -61,12 +62,14 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen bg-background font-sans antialiased">
         <ThemeProvider>
-          <div className="relative flex min-h-screen flex-col">
-            <Header />
-            <main className="flex-1">
-              {children}
-            </main>
-          </div>
+          <SearchProvider>
+            <div className="relative flex min-h-screen flex-col">
+              <Header />
+              <main className="flex-1">
+                {children}
+              </main>
+            </div>
+          </SearchProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -1,9 +1,9 @@
-// components/hadith/HadithList.tsx
 'use client';
 
-import { ICombinedHadith } from '@/lib/types/hadith';
 import { HadithCard } from './HadithCard';
 import { LoadingCard } from '@/components/ui/Loading';
+import { useSearch } from '@/components/search/SearchProvider';
+import type { ICombinedHadith } from '@/lib/types/hadith';
 
 interface HadithListProps {
     hadiths: ICombinedHadith[];
@@ -12,6 +12,18 @@ interface HadithListProps {
 }
 
 export function HadithList({ hadiths, bookName, loading }: HadithListProps) {
+    const { searchQuery } = useSearch();
+
+    // Add IDs to hadith elements for search navigation
+    // useEffect(() => {
+    //     hadiths.forEach(hadith => {
+    //         const element = document.getElementById(`hadith-${hadith.arabic.hadithnumber}`);
+    //         // if (element) {
+    //         //     element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    //         // }
+    //     });
+    // }, [hadiths]);
+
     if (loading) {
         return (
             <div className="space-y-6">
@@ -32,7 +44,7 @@ export function HadithList({ hadiths, bookName, loading }: HadithListProps) {
                     No Hadiths Found
                 </h3>
                 <p className="text-gray-500 dark:text-gray-400">
-                    No hadiths available in this section.
+                    {searchQuery ? `No hadiths match "${searchQuery}"` : 'No hadiths available in this section.'}
                 </p>
             </div>
         );
@@ -41,8 +53,17 @@ export function HadithList({ hadiths, bookName, loading }: HadithListProps) {
     return (
         <div className="space-y-6">
             {hadiths.map((hadith, index) => (
-                <div key={hadith.arabic.hadithnumber} className="animate-slide-up" style={{ animationDelay: `${index * 100}ms` }}>
-                    <HadithCard hadith={hadith} bookName={bookName} />
+                <div
+                    key={hadith.arabic.hadithnumber}
+                    id={`hadith-${hadith.arabic.hadithnumber}`}
+                    className="animate-slide-up scroll-mt-20"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                >
+                    <HadithCard
+                        hadith={hadith}
+                        bookName={bookName}
+                        searchQuery={searchQuery}
+                    />
                 </div>
             ))}
         </div>

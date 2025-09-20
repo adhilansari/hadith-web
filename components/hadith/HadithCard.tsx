@@ -7,14 +7,46 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useSettings } from '@/lib/hooks/useSettings';
 import { cn } from '@/lib/utils/helpers';
-import type { ICombinedHadith } from '@/lib/types/hadith.ts';
+import type { ICombinedHadith } from '@/lib/types/hadith';
 
 interface HadithCardProps {
     hadith: ICombinedHadith;
     bookName: string;
+    searchQuery?: string;
 }
 
-export function HadithCard({ hadith, bookName }: HadithCardProps) {
+// Helper function to highlight search terms
+function highlightText(text: string, searchQuery?: string): React.ReactNode {
+    if (!searchQuery || !text) return text;
+
+    // Escape special regex characters and split by spaces to handle multiple words
+    const searchTerms = searchQuery
+        .trim()
+        .split(/\s+/)
+        .map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+        .filter(term => term.length > 0);
+
+    if (searchTerms.length === 0) return text;
+
+    // Create regex that matches any of the search terms
+    const regex = new RegExp(`(${searchTerms.join('|')})`, 'gi');
+    const parts = text.split(regex);
+
+    return parts.map((part, index) =>
+        regex.test(part) ? (
+            <mark
+                key={index}
+                className="bg-yellow-200 dark:bg-yellow-800/60 px-1 rounded text-inherit"
+            >
+                {part}
+            </mark>
+        ) : (
+            part
+        )
+    );
+}
+
+export function HadithCard({ hadith, bookName, searchQuery }: HadithCardProps) {
     const [copied, setCopied] = useState(false);
     const [bookmarked, setBookmarked] = useState(false);
     const { fontSize, arabicFontSize, showGrades, showReferences } = useSettings();
@@ -61,27 +93,36 @@ export function HadithCard({ hadith, bookName }: HadithCardProps) {
         }
     };
 
+    // Determine if this hadith matches the search query
+    const isSearchMatch = searchQuery && (
+        hadith.arabic.text.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        hadith.translation.text.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     return (
-        <Card className="relative group">
-            {/* Hadith Number Badge - Updated to use CSS custom properties */}
+        <Card className={cn(
+            'relative group transition-all duration-200',
+            isSearchMatch && 'ring-2 ring-primary/50 shadow-lg border-primary/20'
+        )}>
+            {/* Hadith Number Badge */}
             <div className="absolute -top-3 -right-3 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold shadow-lg">
                 {hadith.arabic.hadithnumber}
             </div>
 
             {/* Arabic Text */}
             <div className={cn(
-                'arabic-text mb-6 leading-relaxed',
+                'arabic-text mb-6 leading-relaxed select-text',
                 arabicFontSizeClasses[arabicFontSize]
             )}>
-                {hadith.arabic.text}
+                {highlightText(hadith.arabic.text, searchQuery)}
             </div>
 
             {/* Translation Text */}
             <div className={cn(
-                'text-foreground/80 leading-relaxed mb-6',
+                'text-foreground/80 leading-relaxed mb-6 select-text',
                 fontSizeClasses[fontSize]
             )}>
-                {hadith.translation.text}
+                {highlightText(hadith.translation.text, searchQuery)}
             </div>
 
             {/* Grades - Only show if enabled in settings */}
@@ -100,7 +141,9 @@ export function HadithCard({ hadith, bookName }: HadithCardProps) {
                                         ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800'
                                         : grade.grade.toLowerCase().includes('hasan')
                                             ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950 dark:text-yellow-300 dark:border-yellow-800'
-                                            : 'bg-muted text-muted-foreground border-border'
+                                            : grade.grade.toLowerCase().includes('daif') || grade.grade.toLowerCase().includes('weak')
+                                                ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-300 dark:border-red-800'
+                                                : 'bg-muted text-muted-foreground border-border'
                                 )}
                             >
                                 {grade.name}: {grade.grade}
@@ -136,6 +179,7 @@ export function HadithCard({ hadith, bookName }: HadithCardProps) {
                                 ? 'text-primary hover:text-primary/80'
                                 : 'text-muted-foreground hover:text-primary'
                         )}
+                        aria-label={bookmarked ? 'Remove bookmark' : 'Add bookmark'}
                     >
                         <Bookmark className={cn('w-4 h-4', bookmarked && 'fill-current')} />
                     </Button>
@@ -145,6 +189,7 @@ export function HadithCard({ hadith, bookName }: HadithCardProps) {
                         size="sm"
                         onClick={handleCopy}
                         className="text-muted-foreground hover:text-primary transition-colors duration-200"
+                        aria-label="Copy hadith text"
                     >
                         {copied ? (
                             <Check className="w-4 h-4 text-emerald-500" />
@@ -158,6 +203,7 @@ export function HadithCard({ hadith, bookName }: HadithCardProps) {
                         size="sm"
                         onClick={handleShare}
                         className="text-muted-foreground hover:text-primary transition-colors duration-200"
+                        aria-label="Share hadith"
                     >
                         <Share2 className="w-4 h-4" />
                     </Button>

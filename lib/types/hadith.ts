@@ -72,7 +72,7 @@ export interface ICombinedHadith {
 }
 
 // Theme types
-export type Theme = 'light' | 'dark' | 'system' | 'emerald' | 'purple' | 'blue';
+export type Theme = 'light' | 'dark' | 'system' | 'emerald' | 'purple' | 'blue' | 'orange' | 'rose' | 'teal';
 
 // Settings interface
 export interface ISettings {

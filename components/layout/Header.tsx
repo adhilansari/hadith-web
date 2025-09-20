@@ -1,42 +1,46 @@
-// components/layout/Header.tsx
 'use client';
 
 import { useState } from 'react';
-import { Menu, Settings, Search, Moon, Sun, Monitor, Palette } from 'lucide-react';
+import { Menu, Settings, Moon, Sun, Monitor, Palette } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { useSettings } from '@/lib/hooks/useSettings';
+import { SearchBar } from '@/components/search/SearchBar';
+import { useTheme } from '@/lib/hooks/useTheme';
 import { Sidebar } from './Sidebar';
 
 export function Header() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const { theme, setTheme, toggleTheme, cycleColorThemes } = useSettings();
+    const { theme, toggleBasicTheme, cycleColorThemes, isDarkTheme } = useTheme();
 
-    const themeIcons = {
-        light: <Sun className="w-5 h-5" />,
-        dark: <Moon className="w-5 h-5" />,
-        system: <Monitor className="w-5 h-5" />,
-        blue: <div className="w-5 h-5 rounded-full bg-blue-500 border-2 border-white dark:border-gray-800" />,
-        emerald: <div className="w-5 h-5 rounded-full bg-emerald-500 border-2 border-white dark:border-gray-800" />,
-        purple: <div className="w-5 h-5 rounded-full bg-purple-500 border-2 border-white dark:border-gray-800" />,
-    };
-
-    const handleThemeToggle = () => {
-        // If it's a color theme, cycle through color themes
-        if (theme === 'blue' || theme === 'emerald' || theme === 'purple') {
-            cycleColorThemes();
-        } else {
-            // Otherwise toggle between light/dark/system
-            toggleTheme();
+    const getThemeIcon = () => {
+        switch (theme) {
+            case 'light':
+                return <Sun className="w-5 h-5" />;
+            case 'dark':
+                return <Moon className="w-5 h-5" />;
+            case 'system':
+                return <Monitor className="w-5 h-5" />;
+            default:
+                // For color themes, show palette icon
+                return <Palette className="w-5 h-5" />;
         }
     };
 
-    // Double-click to switch between basic themes and color themes
-    const handleThemeDoubleClick = () => {
-        const isColorTheme = ['blue', 'emerald', 'purple'].includes(theme);
-        if (isColorTheme) {
-            setTheme('system');
-        } else {
-            setTheme('blue');
+    const getThemeColor = () => {
+        switch (theme) {
+            case 'blue':
+                return 'text-blue-500';
+            case 'emerald':
+                return 'text-emerald-500';
+            case 'purple':
+                return 'text-purple-500';
+            case 'orange':
+                return 'text-orange-500';
+            case 'rose':
+                return 'text-rose-500';
+            case 'teal':
+                return 'text-teal-500';
+            default:
+                return 'text-muted-foreground';
         }
     };
 
@@ -44,58 +48,57 @@ export function Header() {
         <>
             <header className="sticky top-0 z-40 w-full border-b border-border glassmorphism">
                 <div className="container mx-auto px-4">
-                    <div className="flex h-16 items-center justify-between">
+                    <div className="flex h-16 items-center justify-between gap-4">
                         <div className="flex items-center gap-4">
                             <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setSidebarOpen(true)}
-                                className="lg:hidden"
+                                className="lg:hidden text-muted-foreground hover:text-primary"
                             >
                                 <Menu className="w-5 h-5" />
                             </Button>
 
-                            <h1 className="text-xl font-bold gradient-primary bg-clip-text text-transparent">
+                            <h1 className="text-xl font-bold gradient-text-primary whitespace-nowrap">
                                 Hadith.net
                             </h1>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="sm">
-                                <Search className="w-5 h-5" />
-                            </Button>
+                        {/* Contextual Search Bar */}
+                        <div className="flex-1 max-w-md mx-4">
+                            <SearchBar compact={true} />
+                        </div>
 
+                        <div className="flex items-center gap-2">
                             {/* Theme Toggle Button */}
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={handleThemeToggle}
-                                onDoubleClick={handleThemeDoubleClick}
-                                title={`Current theme: ${theme}. Click to cycle, double-click to switch between basic/color themes`}
-                                className="relative"
+                                onClick={toggleBasicTheme}
+                                className={`${getThemeColor()} hover:text-primary transition-colors duration-200`}
+                                title={`Current: ${theme} theme - Click to toggle`}
                             >
-                                {themeIcons[theme] || themeIcons.system}
-                                {/* Small indicator for color themes */}
-                                {(theme === 'blue' || theme === 'emerald' || theme === 'purple') && (
-                                    <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-primary opacity-80" />
-                                )}
+                                {getThemeIcon()}
                             </Button>
 
-                            {/* Quick Color Theme Switcher */}
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={cycleColorThemes}
-                                title="Cycle color themes"
-                                className="hidden sm:flex"
-                            >
-                                <Palette className="w-5 h-5" />
-                            </Button>
+                            {/* Color Theme Cycle Button (only show for color themes) */}
+                            {!['light', 'dark', 'system'].includes(theme) && (
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={cycleColorThemes}
+                                    className="text-muted-foreground hover:text-primary transition-colors duration-200"
+                                    title="Change color theme"
+                                >
+                                    <div className="w-3 h-3 rounded-full bg-current opacity-60" />
+                                </Button>
+                            )}
 
                             <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setSidebarOpen(true)}
+                                className="text-muted-foreground hover:text-primary"
                             >
                                 <Settings className="w-5 h-5" />
                             </Button>
