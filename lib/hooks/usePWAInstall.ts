@@ -11,6 +11,14 @@ interface PWAInstallState {
     installPrompt: IBeforeInstallPromptEvent | null;
 }
 
+interface NavigatorWithStandalone extends Navigator {
+    standalone?: boolean;
+}
+
+interface WindowWithMSStream extends Window {
+    MSStream?: unknown;
+}
+
 export function usePWAInstall() {
     const [state, setState] = useState<PWAInstallState>({
         isInstallable: false,
@@ -25,7 +33,7 @@ export function usePWAInstall() {
 
         // Check if running in standalone mode (installed PWA)
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-            || ('standalone' in navigator && (navigator as { standalone?: boolean }).standalone === true)
+            || ('standalone' in navigator && (navigator as NavigatorWithStandalone).standalone === true)
             || document.referrer.includes('android-app://');
 
         return isStandalone;
@@ -104,7 +112,7 @@ export function usePWAInstall() {
         };
 
         // Listen for successful app installation
-        const handleAppInstalled = (e: Event) => {
+        const handleAppInstalled = () => {
             console.log('PWA was installed successfully');
             setState(prev => ({
                 ...prev,
@@ -121,7 +129,7 @@ export function usePWAInstall() {
 
         // Check for iOS Safari install capability
         const isIOSSafari = /iPad|iPhone|iPod/.test(navigator.userAgent) &&
-            !(window as any).MSStream &&
+            !(window as WindowWithMSStream).MSStream &&
             !checkIfInstalled();
 
         if (isIOSSafari) {

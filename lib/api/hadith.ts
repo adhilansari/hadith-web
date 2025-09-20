@@ -2,7 +2,8 @@ import { CacheManager } from './cache';
 import type {
     IEditionsRes,
     IHadithRes,
-    ICombinedHadith
+    ICombinedHadith,
+    IHadith
 } from '@/lib/types/hadith';
 
 export class HadithAPI {
@@ -84,9 +85,9 @@ export class HadithAPI {
             ]);
 
             // Combine the hadiths
-            const combinedHadiths = arabicData.hadiths.map((arabic: any) => {
+            const combinedHadiths = arabicData.hadiths.map((arabic: IHadith) => {
                 const translation = translationData.hadiths.find(
-                    (t: any) => t.hadithnumber === arabic.hadithnumber
+                    (t: IHadith) => t.hadithnumber === arabic.hadithnumber
                 );
 
                 return {

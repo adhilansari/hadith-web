@@ -2,6 +2,10 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
+interface NavigatorWithStandalone extends Navigator {
+    standalone?: boolean;
+}
+
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }
@@ -35,18 +39,6 @@ export function getGradeColor(grade: string): string {
     return 'gray';
 }
 
-export function debounce<T extends (...args: any[]) => any>(
-    func: T,
-    wait: number
-): (...args: Parameters<T>) => void {
-    let timeout: NodeJS.Timeout;
-
-    return (...args: Parameters<T>) => {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), wait);
-    };
-}
-
 export function formatDate(date: Date): string {
     return new Intl.DateTimeFormat('en-US', {
         year: 'numeric',
@@ -75,7 +67,7 @@ export const storage = {
         }
     },
 
-    set: (key: string, value: any) => {
+    set: (key: string, value: unknown) => {
         if (typeof window === 'undefined') return;
         try {
             localStorage.setItem(key, JSON.stringify(value));
@@ -119,7 +111,7 @@ export function applyTheme(theme: string) {
 export function isPWA(): boolean {
     if (typeof window === 'undefined') return false;
     return window.matchMedia('(display-mode: standalone)').matches ||
-        (window.navigator as any).standalone === true;
+        (window.navigator as NavigatorWithStandalone).standalone === true;
 }
 
 export function canInstallPWA(): boolean {

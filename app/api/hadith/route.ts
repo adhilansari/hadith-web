@@ -52,8 +52,14 @@ export async function GET(request: NextRequest) {
             }
 
             const { hadithnumber_first, hadithnumber_last } = sectionDetails;
+
+            interface Hadith {
+                hadithnumber: number;
+                // other properties here
+            }
+
             const filteredHadiths = data.hadiths.filter(
-                (h: any) => h.hadithnumber >= hadithnumber_first &&
+                (h: Hadith) => h.hadithnumber >= hadithnumber_first &&
                     h.hadithnumber <= hadithnumber_last
             );
 

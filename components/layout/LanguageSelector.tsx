@@ -86,7 +86,7 @@ export function LanguageSelector({
             <div className="flex items-center gap-2 flex-wrap">
                 <Languages className="w-4 h-4 text-primary-500" />
                 <div className="flex gap-1 flex-wrap">
-                    {availableLanguages.map(({ code, name }) => (
+                    {availableLanguages.map(({ code }) => (
                         <Button
                             key={code}
                             variant={language === code ? 'primary' : 'ghost'}

@@ -134,7 +134,7 @@ export class CacheManager {
                 localStorage.setItem(CACHE_PREFIX + key, itemString);
             } catch (quotaError) {
                 // If quota exceeded, try progressive cleanup
-                console.warn('Storage quota exceeded, attempting cleanup...');
+                console.warn('Storage quota exceeded, attempting cleanup...', quotaError);
 
                 // First, clear expired items
                 this.clearOldCache();
@@ -145,7 +145,7 @@ export class CacheManager {
                 // Try again
                 try {
                     localStorage.setItem(CACHE_PREFIX + key, itemString);
-                } catch (secondError) {
+                } catch {
                     // If still failing, do more aggressive cleanup
                     await this.clearLeastUsed(Math.ceil(MAX_CACHE_SIZE * 0.8));
 

@@ -1,9 +1,10 @@
 'use client';
 
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { useRouter, usePathname, useParams } from 'next/navigation';
+import { usePathname, useParams } from 'next/navigation';
 import { useSettings } from '@/lib/hooks/useSettings';
 import { HadithAPI } from '@/lib/api/hadith';
+import { ICollection, ICombinedHadith, IEditionsRes, IHadith } from '@/lib/types/hadith';
 
 interface SearchResult {
     type: 'book' | 'section' | 'hadith';
@@ -11,7 +12,7 @@ interface SearchResult {
     title: string;
     subtitle?: string;
     description?: string;
-    data?: any;
+    data?: ICombinedHadith | IHadith;
     url?: string;
 }
 
@@ -48,7 +49,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     // Search for books (home page)
     const searchBooks = async (query: string): Promise<SearchResult[]> => {
         try {
-            const editions = await HadithAPI.getEditions();
+            const editions: IEditionsRes = await HadithAPI.getEditions();
             const results: SearchResult[] = [];
 
             Object.entries(editions).forEach(([key, edition]) => {
@@ -61,7 +62,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                         id: key,
                         title: edition.name,
                         subtitle: `${edition.collection.length} collections`,
-                        description: `Available in ${edition.collection.map(c => c.language).join(', ')}`,
+                        description: `Available in ${edition.collection.map((c: ICollection) => c.language).join(', ')}`,
                         url: `/books/${key}`,
                     });
                 }
@@ -205,7 +206,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
         } finally {
             setIsSearching(false);
         }
-    }, [searchType, params, language]);
+    }, []);
 
     const clearSearch = useCallback(() => {
         setSearchQuery('');

@@ -3,7 +3,6 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { useEffect } from 'react';
 import type { Theme, IExtendedSettings, ILanguageOption } from '@/lib/types/hadith';
 
 interface SettingsStore extends IExtendedSettings {
