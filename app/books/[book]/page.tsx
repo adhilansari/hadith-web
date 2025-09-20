@@ -23,8 +23,8 @@ export default function BookPage() {
         return (
             <div className="container mx-auto px-4 py-8">
                 <div className="text-center">
-                    <h2 className="text-2xl font-bold text-red-600 mb-4">Book Not Found</h2>
-                    <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    <h2 className="text-2xl font-bold text-destructive mb-4">Book Not Found</h2>
+                    <p className="text-muted-foreground mb-6">
                         The requested book could not be loaded.
                     </p>
                     <Button onClick={() => router.push('/')}>
@@ -52,10 +52,10 @@ export default function BookPage() {
 
             {/* Book Info */}
             <div className="mb-8">
-                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
                     {bookData.metadata.name}
                 </h1>
-                <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400 mb-6">
+                <div className="flex items-center gap-4 text-muted-foreground mb-6">
                     <div className="flex items-center gap-2">
                         <BookOpen className="w-5 h-5" />
                         <span>{Object.keys(bookData.metadata.sections).length} Sections</span>
@@ -87,24 +87,24 @@ export default function BookPage() {
                             onClick={() => router.push(`/books/${book}/${sectionId}`)}
                         >
                             <div className="flex items-start justify-between mb-4">
-                                <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center text-white font-bold">
+                                <div className="w-10 h-10 bg-primary text-primary-foreground rounded-lg flex items-center justify-center font-bold">
                                     {sectionId}
                                 </div>
-                                <div className="text-sm text-gray-500 dark:text-gray-400">
+                                <div className="text-sm text-muted-foreground">
                                     {hadithCount} hadith{hadithCount !== 1 ? 's' : ''}
                                 </div>
                             </div>
 
-                            <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                            <h3 className="font-semibold text-lg text-foreground mb-2 group-hover:text-primary transition-colors">
                                 {sectionName}
                             </h3>
 
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                            <p className="text-sm text-muted-foreground mb-4">
                                 Hadith {sectionDetail.hadithnumber_first} - {sectionDetail.hadithnumber_last}
                             </p>
 
-                            <div className="w-full h-1 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-                                <div className="h-full w-0 group-hover:w-full transition-all duration-500 bg-primary-500 rounded-full" />
+                            <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
+                                <div className="h-full w-0 group-hover:w-full transition-all duration-500 bg-primary rounded-full" />
                             </div>
                         </Card>
                     );

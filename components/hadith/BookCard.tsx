@@ -99,7 +99,7 @@ export function BookCard({ bookKey, edition }: BookCardProps) {
                 </div>
 
                 {/* Hover Effect Indicator */}
-                <div className="mt-4 w-full h-1 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+                <div className="mt-4 w-full h-1 hidden md:block bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
                     <div className={`h-full w-0 group-hover:w-full transition-all duration-500 ${colorClass} rounded-full`} />
                 </div>
             </Card>

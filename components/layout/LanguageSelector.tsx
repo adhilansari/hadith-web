@@ -1,7 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { Languages, Check } from 'lucide-react';
+import { Languages, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useSettings } from '@/lib/hooks/useSettings';
@@ -20,6 +21,7 @@ export function LanguageSelector({
     onLanguageChange,
     compact = false
 }: LanguageSelectorProps) {
+    const [isExpanded, setIsExpanded] = useState(false);
     const { language, setLanguage } = useSettings();
     const { data: editions } = useEditions();
     const router = useRouter();
@@ -65,6 +67,7 @@ export function LanguageSelector({
     };
 
     const availableLanguages = getBookLanguages();
+    const currentLanguageInfo = availableLanguages.find(lang => lang.code === language);
 
     // Don't show language selector if no book is selected or no languages available
     if (!currentBook || availableLanguages.length === 0) {
@@ -74,6 +77,7 @@ export function LanguageSelector({
     const handleLanguageChange = (newLanguage: string) => {
         setLanguage(newLanguage);
         onLanguageChange?.(newLanguage);
+        setIsExpanded(false); // Collapse after selection
 
         // If we're on a book or section page, refresh to show new language
         if (params?.book) {
@@ -84,7 +88,7 @@ export function LanguageSelector({
     if (compact) {
         return (
             <div className="flex items-center gap-2 flex-wrap">
-                <Languages className="w-4 h-4 text-primary-500" />
+                <Languages className="w-4 h-4 text-primary" />
                 <div className="flex gap-1 flex-wrap">
                     {availableLanguages.map(({ code }) => (
                         <Button
@@ -104,35 +108,63 @@ export function LanguageSelector({
 
     return (
         <Card>
-            <div className="flex items-center gap-2 mb-4">
-                <Languages className="w-4 h-4 text-primary-500" />
-                <h3 className="font-medium">Available Translations</h3>
-            </div>
+            {/* Accordion Header */}
+            <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="w-full flex items-center justify-between p-0 bg-transparent border-none cursor-pointer group"
+            >
+                <div className="flex items-center gap-2">
+                    <Languages className="w-4 h-4 text-primary" />
+                    <h3 className="font-medium">Available Translations</h3>
+                </div>
 
-            <div className="space-y-2 max-h-60 overflow-y-auto">
-                {availableLanguages.map(({ code, name, nativeName }) => (
-                    <Button
-                        key={code}
-                        variant={language === code ? 'primary' : 'ghost'}
-                        size="sm"
-                        onClick={() => handleLanguageChange(code)}
-                        className="w-full justify-between text-left"
-                    >
-                        <div className="flex flex-col items-start">
-                            <span className="text-sm font-medium">{name}</span>
-                            {name !== nativeName && (
-                                <span className="text-xs opacity-75">{nativeName}</span>
-                            )}
+                <div className="flex items-center gap-2">
+                    {/* Show current selection */}
+                    {currentLanguageInfo && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <span className="font-medium">{currentLanguageInfo.name}</span>
                         </div>
-                        {language === code && (
-                            <Check className="w-4 h-4" />
-                        )}
-                    </Button>
-                ))}
-            </div>
+                    )}
 
-            <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                {availableLanguages.length} translation{availableLanguages.length !== 1 ? 's' : ''} available for this book
+                    {/* Chevron indicator */}
+                    {isExpanded ? (
+                        <ChevronUp className="w-4 h-4 text-muted-foreground transition-transform duration-200" />
+                    ) : (
+                        <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-200" />
+                    )}
+                </div>
+            </button>
+
+            {/* Accordion Content */}
+            <div
+                className={`transition-all duration-300 ease-in-out overflow-hidden ${isExpanded ? 'max-h-80 opacity-100 mt-4' : 'max-h-0 opacity-0'
+                    }`}
+            >
+                <div className="space-y-2 max-h-60 overflow-y-auto w-auto">
+                    {availableLanguages.map(({ code, name, nativeName }) => (
+                        <Button
+                            key={code}
+                            variant={language === code ? 'primary' : 'ghost'}
+                            size="sm"
+                            onClick={() => handleLanguageChange(code)}
+                            className="w-full justify-between text-left transition-all hover:scale-[1.02]"
+                        >
+                            <div className="flex flex-col items-start">
+                                <span className="text-sm font-medium">{name}</span>
+                                {name !== nativeName && (
+                                    <span className="text-xs opacity-75">{nativeName}</span>
+                                )}
+                            </div>
+                            {language === code && (
+                                <Check className="w-4 h-4 text-primary" />
+                            )}
+                        </Button>
+                    ))}
+                </div>
+
+                <div className="mt-3 pt-3 border-t border-border text-xs text-muted-foreground">
+                    {availableLanguages.length} translation{availableLanguages.length !== 1 ? 's' : ''} available for this book
+                </div>
             </div>
         </Card>
     );

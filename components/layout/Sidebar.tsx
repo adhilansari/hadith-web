@@ -1,7 +1,7 @@
 // components/layout/Sidebar.tsx (Enhanced with new theme system)
 'use client';
 
-import { X, Settings, Book, Languages, Palette, Type, Moon, Sun, Monitor, Download, Smartphone, Share } from 'lucide-react';
+import { X, Settings, Book, Palette, Type, Moon, Sun, Monitor, Download, Smartphone, Share } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useSettings } from '@/lib/hooks/useSettings';
@@ -27,10 +27,8 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     }, []);
 
     const {
-        language,
         fontSize,
         arabicFontSize,
-        setLanguage,
         setFontSize,
         setArabicFontSize,
         _hasHydrated
@@ -43,25 +41,11 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     const basicThemes = availableThemes.filter(t => ['light', 'dark', 'system'].includes(t.key));
     const colorThemes = availableThemes.filter(t => !['light', 'dark', 'system'].includes(t.key));
 
-    const languages = [
-        { code: 'eng', name: 'English' },
-        { code: 'ara', name: 'العربية' },
-        // { code: 'urd', name: 'اردو' },
-        // { code: 'tur', name: 'Türkçe' },
-        // { code: 'ind', name: 'Indonesia' },
-    ];
-
     const fontSizes = [
         { key: 'small', label: 'Small' },
         { key: 'medium', label: 'Medium' },
         { key: 'large', label: 'Large' },
     ];
-
-    // Memoized handlers to prevent unnecessary re-renders
-    const handleLanguageChange = useCallback((newLanguage: string) => {
-        console.log('Language changing to:', newLanguage);
-        setLanguage(newLanguage);
-    }, [setLanguage]);
 
     const handleFontSizeChange = useCallback((newSize: 'small' | 'medium' | 'large') => {
         console.log('Font size changing to:', newSize);
@@ -259,27 +243,6 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                             </div>
                         </Card>
 
-                        {/* Language Selection */}
-                        <Card>
-                            <div className="flex items-center gap-2 mb-4">
-                                <Languages className="w-4 h-4 text-primary" />
-                                <h3 className="font-medium text-foreground">Translation Language</h3>
-                            </div>
-                            <div className="space-y-2">
-                                {languages.map(({ code, name }) => (
-                                    <Button
-                                        key={code}
-                                        variant={language === code ? 'primary' : 'ghost'}
-                                        size="sm"
-                                        onClick={() => handleLanguageChange(code)}
-                                        className="w-full justify-start"
-                                    >
-                                        {name}
-                                    </Button>
-                                ))}
-                            </div>
-                        </Card>
-
                         {/* Font Size Settings */}
                         <Card>
                             <div className="flex items-center gap-2 mb-4">
@@ -332,7 +295,6 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                             </div>
                             <p className="text-sm text-muted-foreground leading-relaxed">
                                 A modern, responsive PWA for reading authentic Hadith collections with translations.
-                                Built with Next.js 15 and Tailwind CSS v4.
                             </p>
                             <div className="mt-3 text-xs text-muted-foreground">
                                 Version 1.0.0

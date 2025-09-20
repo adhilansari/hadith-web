@@ -14,16 +14,6 @@ interface HadithListProps {
 export function HadithList({ hadiths, bookName, loading }: HadithListProps) {
     const { searchQuery } = useSearch();
 
-    // Add IDs to hadith elements for search navigation
-    // useEffect(() => {
-    //     hadiths.forEach(hadith => {
-    //         const element = document.getElementById(`hadith-${hadith.arabic.hadithnumber}`);
-    //         // if (element) {
-    //         //     element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    //         // }
-    //     });
-    // }, [hadiths]);
-
     if (loading) {
         return (
             <div className="space-y-6">
@@ -37,13 +27,13 @@ export function HadithList({ hadiths, bookName, loading }: HadithListProps) {
     if (!hadiths.length) {
         return (
             <div className="text-center py-12">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                    <span className="text-2xl text-gray-400">📖</span>
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+                    <span className="text-2xl text-muted-foreground">📖</span>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                <h3 className="text-lg font-medium text-foreground mb-2">
                     No Hadiths Found
                 </h3>
-                <p className="text-gray-500 dark:text-gray-400">
+                <p className="text-muted-foreground">
                     {searchQuery ? `No hadiths match "${searchQuery}"` : 'No hadiths available in this section.'}
                 </p>
             </div>

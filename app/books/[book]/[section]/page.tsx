@@ -26,8 +26,8 @@ export default function SectionPage() {
         return (
             <div className="container mx-auto px-4 py-8">
                 <div className="text-center">
-                    <h2 className="text-2xl font-bold text-red-600 mb-4">Section Not Found</h2>
-                    <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    <h2 className="text-2xl font-bold text-destructive mb-4">Section Not Found</h2>
+                    <p className="text-muted-foreground mb-6">
                         The requested section could not be loaded.
                     </p>
                     <Button onClick={() => router.push(`/books/${book}`)}>
@@ -60,18 +60,18 @@ export default function SectionPage() {
             {/* Section Info */}
             <div className="mb-8">
                 <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 bg-primary-500 rounded-xl flex items-center justify-center text-white font-bold text-lg">
+                    <div className="w-12 h-12 bg-primary text-primary-foreground rounded-xl flex items-center justify-center font-bold text-lg">
                         {section}
                     </div>
                     <div className="flex-1">
-                        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+                        <h1 className="text-2xl md:text-3xl font-bold text-foreground">
                             {sectionName}
                         </h1>
-                        <p className="text-gray-600 dark:text-gray-400">{bookName}</p>
+                        <p className="text-muted-foreground">{bookName}</p>
                     </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600 dark:text-gray-400 mb-4">
+                <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground mb-4">
                     <div className="flex items-center gap-2">
                         <BookOpen className="w-4 h-4" />
                         <span>{hadiths.length} Ahadith</span>

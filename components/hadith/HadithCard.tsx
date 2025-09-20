@@ -36,7 +36,7 @@ function highlightText(text: string, searchQuery?: string): React.ReactNode {
         regex.test(part) ? (
             <mark
                 key={index}
-                className="bg-yellow-200 dark:bg-yellow-800/60 px-1 rounded text-inherit"
+                className="bg-primary/20 text-primary-foreground px-1 rounded"
             >
                 {part}
             </mark>
@@ -138,11 +138,11 @@ export function HadithCard({ hadith, bookName, searchQuery }: HadithCardProps) {
                                 className={cn(
                                     'px-3 py-1 rounded-full text-xs font-medium border',
                                     grade.grade.toLowerCase().includes('sahih')
-                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800'
+                                        ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20'
                                         : grade.grade.toLowerCase().includes('hasan')
-                                            ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950 dark:text-yellow-300 dark:border-yellow-800'
+                                            ? 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20 dark:bg-yellow-500/10 dark:text-yellow-400 dark:border-yellow-500/20'
                                             : grade.grade.toLowerCase().includes('daif') || grade.grade.toLowerCase().includes('weak')
-                                                ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-300 dark:border-red-800'
+                                                ? 'bg-red-500/10 text-red-600 border-red-500/20 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20'
                                                 : 'bg-muted text-muted-foreground border-border'
                                 )}
                             >
@@ -192,7 +192,7 @@ export function HadithCard({ hadith, bookName, searchQuery }: HadithCardProps) {
                         aria-label="Copy hadith text"
                     >
                         {copied ? (
-                            <Check className="w-4 h-4 text-emerald-500" />
+                            <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                         ) : (
                             <Copy className="w-4 h-4" />
                         )}

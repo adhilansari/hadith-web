@@ -15,7 +15,11 @@ export function Card({
     const variants = {
         default: 'bg-card text-card-foreground border border-border',
         glass: 'glassmorphism',
-        gradient: `gradient-${gradientColor} text-white`,
+        gradient: gradientColor === 'primary'
+            ? 'gradient-primary text-primary-foreground'
+            : gradientColor === 'secondary'
+                ? 'gradient-secondary text-secondary-foreground'
+                : 'bg-gradient-to-br from-emerald-500/80 to-emerald-500 text-white',
     };
 
     return (
