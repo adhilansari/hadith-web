@@ -5,6 +5,7 @@ import { ArrowLeft, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Loading } from '@/components/ui/Loading';
+import { LanguageSelector } from '@/components/layout/LanguageSelector';
 import { useHadithData, useEditions } from '@/lib/hooks/useHadith';
 import { useSettings } from '@/lib/hooks/useSettings';
 
@@ -35,8 +36,6 @@ export default function BookPage() {
         );
     }
 
-    const bookInfo = editions?.[book as keyof typeof editions];
-
     return (
         <div className="container mx-auto px-4 py-8">
             {/* Header */}
@@ -53,11 +52,11 @@ export default function BookPage() {
             </div>
 
             {/* Book Info */}
-            <div className="mb-12">
+            <div className="mb-8">
                 <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
                     {bookData.metadata.name}
                 </h1>
-                <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400">
+                <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400 mb-6">
                     <div className="flex items-center gap-2">
                         <BookOpen className="w-5 h-5" />
                         <span>{Object.keys(bookData.metadata.sections).length} Sections</span>
@@ -65,6 +64,11 @@ export default function BookPage() {
                     <div className="flex items-center gap-2">
                         <span>{bookData.hadiths.length} Total Ahadith</span>
                     </div>
+                </div>
+
+                {/* Language Selector - Only shows for this book */}
+                <div className="mb-8">
+                    <LanguageSelector bookKey={book} />
                 </div>
             </div>
 

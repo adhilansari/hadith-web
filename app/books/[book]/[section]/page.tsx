@@ -5,6 +5,7 @@ import { ArrowLeft, BookOpen, Hash } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { HadithList } from '@/components/hadith/HadithList';
 import { Loading } from '@/components/ui/Loading';
+import { LanguageSelector } from '@/components/layout/LanguageSelector';
 import { useCombinedHadith, useHadithData, useEditions } from '@/lib/hooks/useHadith';
 import { useSettings } from '@/lib/hooks/useSettings';
 
@@ -38,7 +39,7 @@ export default function SectionPage() {
     }
 
     const sectionName = bookData?.metadata.sections[section] || `Section ${section}`;
-    const bookName = bookData?.metadata.name || editions?.[book]?.name || book;
+    const bookName = bookData?.metadata.name || editions?.[book as keyof typeof editions]?.name || book;
     const sectionDetail = bookData?.metadata.section_details[section];
 
     return (
@@ -57,12 +58,12 @@ export default function SectionPage() {
             </div>
 
             {/* Section Info */}
-            <div className="mb-12">
+            <div className="mb-8">
                 <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 bg-primary-500 rounded-xl flex items-center justify-center text-white font-bold text-lg">
                         {section}
                     </div>
-                    <div>
+                    <div className="flex-1">
                         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
                             {sectionName}
                         </h1>
@@ -70,7 +71,7 @@ export default function SectionPage() {
                     </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600 dark:text-gray-400">
+                <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600 dark:text-gray-400 mb-4">
                     <div className="flex items-center gap-2">
                         <BookOpen className="w-4 h-4" />
                         <span>{hadiths.length} Ahadith</span>
@@ -83,11 +84,10 @@ export default function SectionPage() {
                             </span>
                         </div>
                     )}
-                    <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-green-500" />
-                        <span>Arabic with {language.toUpperCase()} Translation</span>
-                    </div>
                 </div>
+
+                {/* Compact Language Selector */}
+                <LanguageSelector bookKey={book} compact={true} />
             </div>
 
             {/* Hadiths List */}

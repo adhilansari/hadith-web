@@ -46,9 +46,9 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     const languages = [
         { code: 'eng', name: 'English' },
         { code: 'ara', name: 'العربية' },
-        { code: 'urd', name: 'اردو' },
-        { code: 'tur', name: 'Türkçe' },
-        { code: 'ind', name: 'Indonesia' },
+        // { code: 'urd', name: 'اردو' },
+        // { code: 'tur', name: 'Türkçe' },
+        // { code: 'ind', name: 'Indonesia' },
     ];
 
     const fontSizes = [
