@@ -1,0 +1,60 @@
+<!-- Create /public/test-pwa.html for testing -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>PWA Test</title>
+    <link rel="manifest" href="/manifest.json">
+</head>
+
+<body>
+    <h1>PWA Installation Test</h1>
+    <button onclick="testPWA()">Test PWA Requirements</button>
+    <div id="results"></div>
+
+    <script>
+        async function testPWA() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h3>Testing...</h3>';
+
+            const tests = [];
+
+            // Test manifest
+            try {
+                const manifest = await fetch('/manifest.json');
+                tests.push(`✅ Manifest: ${manifest.status}`);
+                if (manifest.ok) {
+                    const data = await manifest.json();
+                    tests.push(`✅ Manifest has ${data.icons?.length || 0} icons`);
+                }
+            } catch (e) {
+                tests.push(`❌ Manifest error: ${e.message}`);
+            }
+
+            // Test icons
+            const icons = ['/icons/icon-192x192.png', '/icons/icon-512x512.png'];
+            for (const icon of icons) {
+                try {
+                    const response = await fetch(icon);
+                    tests.push(`${response.ok ? '✅' : '❌'} Icon ${icon}: ${response.status}`);
+                } catch (e) {
+                    tests.push(`❌ Icon ${icon} error: ${e.message}`);
+                }
+            }
+
+            // Test service worker
+            try {
+                const reg = await navigator.serviceWorker.getRegistration();
+                tests.push(`✅ Service Worker: ${reg ? 'registered' : 'not registered'}`);
+            } catch (e) {
+                tests.push(`❌ SW error: ${e.message}`);
+            }
+
+            results.innerHTML = '<h3>Results:</h3><ul>' +
+                tests.map(test => `<li>${test}</li>`).join('') +
+                '</ul>';
+        }
+    </script>
+</body>
+
+</html>
