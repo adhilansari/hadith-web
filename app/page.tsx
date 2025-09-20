@@ -49,9 +49,9 @@ export default function HomePage() {
             <span className="text-xl">📖</span>
           </div>
           <h3 className="font-semibold text-lg mb-2 text-foreground">Authentic Sources</h3>
-          <p className="text-muted-foreground text-sm">
+          {/* <p className="text-muted-foreground text-sm">
             All hadith from verified authentic collections with scholarly grading
-          </p>
+          </p> */}
         </div>
 
         <div className="text-center p-6 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
@@ -59,9 +59,9 @@ export default function HomePage() {
             <span className="text-xl">🌐</span>
           </div>
           <h3 className="font-semibold text-lg mb-2 text-foreground">Multiple Languages</h3>
-          <p className="text-muted-foreground text-sm">
+          {/* <p className="text-muted-foreground text-sm">
             Read translations in English, Arabic, Urdu, Turkish, and more
-          </p>
+          </p> */}
         </div>
 
         <div className="text-center p-6 rounded-xl bg-purple-500/5 border border-purple-500/10">
@@ -69,9 +69,9 @@ export default function HomePage() {
             <span className="text-xl">📱</span>
           </div>
           <h3 className="font-semibold text-lg mb-2 text-foreground">Modern Interface</h3>
-          <p className="text-muted-foreground text-sm">
+          {/* <p className="text-muted-foreground text-sm">
             Beautiful, responsive design that works offline as a PWA
-          </p>
+          </p> */}
         </div>
       </div>
     </div>
