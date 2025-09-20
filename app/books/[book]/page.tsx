@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Loading } from '@/components/ui/Loading';
 import { LanguageSelector } from '@/components/layout/LanguageSelector';
-import { useHadithData, useEditions } from '@/lib/hooks/useHadith';
+import { useHadithData } from '@/lib/hooks/useHadith';
 import { useSettings } from '@/lib/hooks/useSettings';
 
 export default function BookPage() {
@@ -15,7 +15,6 @@ export default function BookPage() {
     const { language } = useSettings();
     const book = params.book as string;
 
-    const { data: editions } = useEditions();
     const { data: bookData, isLoading, error } = useHadithData(book, language);
 
     if (isLoading) return <Loading />;
@@ -43,7 +42,7 @@ export default function BookPage() {
                 <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => router.back()}
+                    onClick={() => router.push('/')}
                     className="flex items-center gap-2"
                 >
                     <ArrowLeft className="w-4 h-4" />

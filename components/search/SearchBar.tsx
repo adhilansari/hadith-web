@@ -121,7 +121,7 @@ export function SearchBar({ placeholder, compact = false }: SearchBarProps) {
     };
 
     return (
-        <div className={cn('search-container relative', compact ? 'w-full' : 'w-full max-w-md')}>
+        <div className={cn('search-container md:relative', compact ? 'w-full' : 'w-full max-w-md')}>
             {/* Search Input */}
             <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -158,7 +158,7 @@ export function SearchBar({ placeholder, compact = false }: SearchBarProps) {
 
             {/* Search Results Dropdown */}
             {isOpen && (
-                <Card className="absolute top-full left-0 right-0 mt-2 z-50 max-h-96 overflow-y-auto">
+                <Card className="absolute top-full left-0 right-0 mt-2 z-50 max-h-96 overflow-y-auto py-2 shadow-xl border border-gray-300 dark:border-gray-600">
                     <div className="p-2">
                         {/* Search Type Indicator */}
                         <div className="text-xs text-gray-500 dark:text-gray-400 mb-3 px-2">

@@ -9,7 +9,7 @@ import { Sidebar } from './Sidebar';
 
 export function Header() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const { theme, toggleBasicTheme, cycleColorThemes, isDarkTheme } = useTheme();
+    const { theme, toggleBasicTheme, cycleColorThemes } = useTheme();
 
     const getThemeIcon = () => {
         switch (theme) {
@@ -75,7 +75,7 @@ export function Header() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={toggleBasicTheme}
-                                className={`${getThemeColor()} hover:text-primary transition-colors duration-200`}
+                                className={`${getThemeColor()} hidden md:block hover:text-primary transition-colors duration-200`}
                                 title={`Current: ${theme} theme - Click to toggle`}
                             >
                                 {getThemeIcon()}
@@ -87,7 +87,7 @@ export function Header() {
                                     variant="ghost"
                                     size="sm"
                                     onClick={cycleColorThemes}
-                                    className="text-muted-foreground hover:text-primary transition-colors duration-200"
+                                    className="text-muted-foreground hidden md:block hover:text-primary transition-colors duration-200"
                                     title="Change color theme"
                                 >
                                     <div className="w-3 h-3 rounded-full bg-current opacity-60" />
@@ -98,7 +98,7 @@ export function Header() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setSidebarOpen(true)}
-                                className="text-muted-foreground hover:text-primary"
+                                className="text-muted-foreground hidden md:block hover:text-primary"
                             >
                                 <Settings className="w-5 h-5" />
                             </Button>
