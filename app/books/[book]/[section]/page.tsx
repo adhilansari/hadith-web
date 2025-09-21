@@ -43,7 +43,7 @@ export default function SectionPage() {
     const sectionDetail = bookData?.metadata.section_details[section];
 
     return (
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto w-[75rem] max-w-[75rem] px-4 py-8">
             {/* Header */}
             <div className="flex items-center gap-4 mb-8">
                 <Button

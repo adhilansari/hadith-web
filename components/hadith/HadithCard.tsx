@@ -109,11 +109,11 @@ export function HadithCard({ hadith, bookName, searchQuery }: HadithCardProps) {
                 {hadith.arabic.hadithnumber}
             </div>
 
-            <div className="flex flex-col md:flex-row gap-5 items-center justify-center w-full">
+            <div className="flex flex-col md:flex-row gap-5 items-start w-full">
                 {/* Arabic Text */}
                 <div
                     className={cn(
-                        'arabic-text mb-6 leading-relaxed select-text md:w-1/2 text-right order-1 md:order-2',
+                        'arabic-text mb-6 leading-relaxed select-text md:w-1/2 text-right order-1 md:order-2 self-start',
                         arabicFontSizeClasses[arabicFontSize]
                     )}
                 >
@@ -123,7 +123,7 @@ export function HadithCard({ hadith, bookName, searchQuery }: HadithCardProps) {
                 {/* Translation Text */}
                 <div
                     className={cn(
-                        'text-foreground/80 leading-relaxed mb-6 select-text md:w-1/2 order-2 md:order-1',
+                        'text-foreground/80 leading-relaxed mb-6 select-text md:w-1/2 order-2 md:order-1 text-left self-start',
                         fontSizeClasses[fontSize]
                     )}
                 >
@@ -134,10 +134,10 @@ export function HadithCard({ hadith, bookName, searchQuery }: HadithCardProps) {
             {/* Grades - Only show if enabled in settings */}
             {showGrades && hadith.translation.grades && hadith.translation.grades.length > 0 && (
                 <div className="mb-4">
-                    <h4 className="text-sm font-medium text-muted-foreground mb-2">
+                    <h4 className="text-sm font-medium text-muted-foreground mb-2 text-left">
                         Authenticity Grades:
                     </h4>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 justify-start">
                         {hadith.translation.grades.map((grade, index) => (
                             <span
                                 key={index}
@@ -161,14 +161,14 @@ export function HadithCard({ hadith, bookName, searchQuery }: HadithCardProps) {
 
             {/* Reference - Only show if enabled in settings */}
             {showReferences && hadith.translation.reference && (
-                <div className="mb-4 text-sm text-muted-foreground">
+                <div className="mb-4 text-sm text-muted-foreground text-left">
                     <strong>Reference:</strong> Book {hadith.translation.reference.book},
                     Hadith {hadith.translation.reference.hadith}
                 </div>
             )}
 
             {/* Source */}
-            <div className="text-xs text-muted-foreground mb-4">
+            <div className="text-xs text-muted-foreground mb-4 text-left">
                 {bookName} • Arabic #{hadith.arabic.arabicnumber}
             </div>
 

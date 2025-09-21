@@ -4,6 +4,7 @@ import { SearchProvider } from '@/components/search/SearchProvider';
 import { Header } from '@/components/layout/Header';
 import '@/styles/globals.css';
 import { PWAInstaller } from '@/components/PWAInstaller';
+import { inter, notoNaskhArabic } from '@/lib/utils/fonts';
 
 export const metadata: Metadata = {
   title: 'Hadith.net - Authentic Islamic Hadith Collections',
@@ -62,7 +63,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${notoNaskhArabic.variable}`} suppressHydrationWarning>
       <body className="min-h-screen bg-background font-sans antialiased">
         <ThemeProvider>
           <PWAInstaller />

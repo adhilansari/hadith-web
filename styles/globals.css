@@ -3,8 +3,9 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: Inter, system-ui, sans-serif;
-  --font-arabic: Amiri, serif;
+  --font-sans: var(--font-inter), Inter, system-ui, sans-serif;
+  --font-arabic: var(--font-noto-naskh-arabic), "Noto Naskh Arabic", Amiri,
+    serif;
 
   /* Colors */
   --color-background: hsl(var(--background));
@@ -459,7 +460,7 @@
 
   /* Arabic text styling - Fixed with proper font sizes */
   .arabic-text {
-    font-family: "Noto Naskh Arabic", "Amiri", serif;
+    font-family: var(--font-arabic);
     line-height: 1.8;
     direction: rtl;
     text-align: right;

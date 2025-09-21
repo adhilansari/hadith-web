@@ -36,7 +36,7 @@ export default function BookPage() {
     }
 
     return (
-        <div className="container mx-auto px-4 py-8">
+        <div className="container w-[75rem] max-w-[75rem] mx-auto px-4 py-8">
             {/* Header */}
             <div className="flex items-center gap-4 mb-8">
                 <Button

@@ -23,7 +23,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto w-[75rem] max-w-[75rem] px-4 py-8">
       {/* Hero Section */}
       <div className="text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-bold gradient-text-primary mb-4">
@@ -36,7 +36,7 @@ export default function HomePage() {
       </div>
 
       {/* Books Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {editions && Object.entries(editions).map(([key, edition]) => (
           <BookCard key={key} bookKey={key} edition={edition} />
         ))}
