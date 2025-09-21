@@ -165,8 +165,6 @@ export class CacheManager {
     }
 
     private static async aggressiveCleanup(): Promise<void> {
-        console.log('Performing aggressive cache cleanup...');
-
         // Clear expired items first
         this.clearOldCache();
 
@@ -223,8 +221,6 @@ export class CacheManager {
                 // Continue even if removal fails
             }
         }
-
-        console.log(`Cleaned up ${itemsToRemove} cache items`);
     }
 
     static getCacheStats(): CacheStats {

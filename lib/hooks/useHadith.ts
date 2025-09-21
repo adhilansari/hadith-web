@@ -26,7 +26,6 @@ const swrConfig = {
 // Enhanced fetcher functions with better error handling
 const editionsFetcher = async () => {
     try {
-        console.log('Fetching editions...');
         return await HadithAPI.getEditions();
     } catch (error) {
         console.error('Error fetching editions:', error);
@@ -36,9 +35,7 @@ const editionsFetcher = async () => {
 
 const hadithDataFetcher = async ([, book, language]: [string, string, string]) => {
     try {
-        console.log('Fetching hadith data for:', { book, language });
         const result = await HadithAPI.getHadithData(book, language);
-        console.log('Successfully fetched hadith data for:', book);
         return result;
     } catch (error) {
         console.error('Error fetching hadith data:', { book, language, error });
@@ -49,7 +46,6 @@ const hadithDataFetcher = async ([, book, language]: [string, string, string]) =
 
 const combinedHadithFetcher = async ([, book, section, language]: [string, string, string, string]) => {
     try {
-        console.log('Fetching combined hadith for:', { book, section, language });
         return await HadithAPI.getCombinedHadith(book, section, language);
     } catch (error) {
         console.error('Error fetching combined hadith:', { book, section, language, error });
@@ -59,7 +55,6 @@ const combinedHadithFetcher = async ([, book, section, language]: [string, strin
 
 const bookStatsFetcher = async ([, book]: [string, string]) => {
     try {
-        console.log('Fetching book stats for:', book);
         return await HadithAPI.getBookStats(book);
     } catch (error) {
         console.error('Error fetching book stats:', { book, error });
@@ -92,15 +87,13 @@ export function useHadithData(book: string, language: string = 'eng') {
     // Validate book parameter
     const isValidBook = book && typeof book === 'string' && book.trim().length > 0;
 
-    console.log('useHadithData called with:', { book, language, isValidBook });
-
     const { data, error, isLoading, mutate } = useSWR<IHadithRes, Error>(
         isValidBook ? ['hadith', book.toLowerCase().trim(), language] : null,
         hadithDataFetcher,
         {
             ...swrConfig,
             onSuccess: (data) => {
-                console.log('Successfully loaded hadith data for:', book, data?.metadata?.name);
+                console.info('Successfully loaded hadith data for:', book, data?.metadata?.name);
             },
             onError: (error) => {
                 console.error('SWR onError for hadith data:', { book, language, error });

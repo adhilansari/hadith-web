@@ -1,11 +1,12 @@
 'use client';
 
-import { X, Settings, Book, Palette, Type, Download, Smartphone, Share, Monitor, Chrome, Globe, RefreshCw, Bug, Zap } from 'lucide-react';
+import { X, Settings, Book, Palette, Type, Download, Smartphone, Share, Monitor, Chrome, Globe, RefreshCw, Bug, Zap, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useSettings } from '@/lib/hooks/useSettings';
 import { usePWAInstall } from '@/lib/hooks/usePWAInstall';
 import { useCallback, useEffect, useState } from 'react';
+import { useTheme } from '@/lib/hooks/useTheme';
 
 interface SidebarProps {
     open: boolean;
@@ -25,23 +26,21 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     }, []);
 
     const {
-        theme,
         fontSize,
         arabicFontSize,
-        setTheme,
         setFontSize,
         setArabicFontSize,
-        _hasHydrated
+        _hasHydrated,
     } = settings;
 
-    const themes = [
-        { key: 'light', label: 'Light' },
-        { key: 'dark', label: 'Dark' },
-        { key: 'system', label: 'System' },
-        { key: 'blue', label: 'Ocean Blue' },
-        { key: 'emerald', label: 'Forest Green' },
-        { key: 'purple', label: 'Royal Purple' },
-    ];
+    const { theme, setTheme, getAllThemes } = useTheme();
+
+    // Get all available themes with enhanced metadata
+    const availableThemes = getAllThemes();
+
+    // Group themes for better organization
+    const basicThemes = availableThemes.filter(t => ['light', 'dark', 'system'].includes(t.key));
+    const colorThemes = availableThemes.filter(t => !['light', 'dark', 'system'].includes(t.key));
 
     const fontSizes = [
         { key: 'small', label: 'Small' },
@@ -49,10 +48,32 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         { key: 'large', label: 'Large' },
     ];
 
-    const handlePWAInstall = useCallback(async () => {
-        console.log('PWA Install clicked for:', pwa.browserName);
-        console.log('Has native prompt:', !!pwa.installPrompt);
+    const getThemeIcon = (themeKey: string) => {
+        switch (themeKey) {
+            case 'light':
+                return <Sun className="w-4 h-4" />;
+            case 'dark':
+                return <Moon className="w-4 h-4" />;
+            case 'system':
+                return <Monitor className="w-4 h-4" />;
+            case 'blue':
+                return <div className="w-4 h-4 rounded-full bg-blue-500" />;
+            case 'emerald':
+                return <div className="w-4 h-4 rounded-full bg-emerald-500" />;
+            case 'purple':
+                return <div className="w-4 h-4 rounded-full bg-purple-500" />;
+            case 'orange':
+                return <div className="w-4 h-4 rounded-full bg-orange-500" />;
+            case 'rose':
+                return <div className="w-4 h-4 rounded-full bg-rose-500" />;
+            case 'teal':
+                return <div className="w-4 h-4 rounded-full bg-teal-500" />;
+            default:
+                return <Palette className="w-4 h-4" />;
+        }
+    };
 
+    const handlePWAInstall = useCallback(async () => {
         const result = await pwa.installPWA();
 
         if (result === 'ios-instructions') {
@@ -60,7 +81,6 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         } else if (result === 'manual-install') {
             setShowManualInstructions(true);
         } else if (result === true) {
-            console.log('App installed successfully!');
             // Refresh status after successful install
             setTimeout(() => pwa.refreshInstallStatus(), 2000);
         }
@@ -126,24 +146,49 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
                     <div className="space-y-6">
 
-                        {/* Theme Settings */}
+                        {/* Theme Selection */}
                         <Card>
                             <div className="flex items-center gap-2 mb-4">
                                 <Palette className="w-4 h-4 text-primary" />
-                                <h3 className="font-medium">Theme</h3>
+                                <h3 className="font-medium text-foreground">Theme</h3>
                             </div>
-                            <div className="grid grid-cols-2 gap-2">
-                                {themes.map(({ key, label }) => (
-                                    <Button
-                                        key={key}
-                                        variant={theme === key ? 'primary' : 'ghost'}
-                                        size="sm"
-                                        onClick={() => setTheme(key as 'light' | 'dark' | 'system' | 'blue' | 'emerald' | 'purple')}
-                                        className="justify-start gap-2"
-                                    >
-                                        {label}
-                                    </Button>
-                                ))}
+
+                            {/* Basic Themes */}
+                            <div className="mb-4">
+                                <h4 className="text-sm font-medium text-muted-foreground mb-2">Basic Themes</h4>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {basicThemes.map((themeItem) => (
+                                        <Button
+                                            key={themeItem.key}
+                                            variant={theme === themeItem.key ? 'primary' : 'ghost'}
+                                            size="sm"
+                                            onClick={() => setTheme(themeItem.key)}
+                                            className="flex-col gap-1 h-auto py-2"
+                                        >
+                                            {getThemeIcon(themeItem.key)}
+                                            <span className="text-xs">{themeItem.label}</span>
+                                        </Button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Color Themes */}
+                            <div>
+                                <h4 className="text-sm font-medium text-muted-foreground mb-2">Color Themes</h4>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {colorThemes.map((themeItem) => (
+                                        <Button
+                                            key={themeItem.key}
+                                            variant={theme === themeItem.key ? 'primary' : 'ghost'}
+                                            size="sm"
+                                            onClick={() => setTheme(themeItem.key)}
+                                            className="justify-start gap-2 h-10"
+                                        >
+                                            {getThemeIcon(themeItem.key)}
+                                            <span className="text-xs">{themeItem.label}</span>
+                                        </Button>
+                                    ))}
+                                </div>
                             </div>
                         </Card>
 

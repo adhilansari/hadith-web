@@ -16,23 +16,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         // Remove all theme classes first
         root.classList.remove('light', 'dark', 'theme-blue', 'theme-emerald', 'theme-purple');
 
-        console.log('ThemeProvider applying theme:', theme);
-
         if (theme === 'system') {
             const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            console.log('System theme detected:', systemTheme);
             root.classList.add(systemTheme);
         } else if (theme === 'light' || theme === 'dark') {
-            console.log('Applying basic theme:', theme);
             root.classList.add(theme);
         } else if (theme === 'blue' || theme === 'emerald' || theme === 'purple') {
             // For colored themes, apply dark mode and theme class
-            console.log('Applying colored theme: dark +', `theme-${theme}`);
             root.classList.add('dark', `theme-${theme}`);
         }
-
-        // Debug: log current classes
-        console.log('Current root classes:', root.className);
 
         // Set meta theme-color for mobile browsers
         const metaThemeColor = document.querySelector('meta[name="theme-color"]');
@@ -59,7 +51,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
             const root = window.document.documentElement;
             root.classList.remove('light', 'dark');
             root.classList.add(e.matches ? 'dark' : 'light');
-            console.log('System theme changed to:', e.matches ? 'dark' : 'light');
         };
 
         mediaQuery.addEventListener('change', handleChange);

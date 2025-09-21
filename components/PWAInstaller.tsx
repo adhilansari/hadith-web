@@ -9,8 +9,6 @@ export function PWAInstaller() {
         const validateAndRegisterServiceWorker = async () => {
             if ('serviceWorker' in navigator) {
                 try {
-                    console.log('Registering service worker...');
-
                     // Unregister existing service workers in development
                     if (process.env.NODE_ENV === 'development') {
                         const registrations = await navigator.serviceWorker.getRegistrations();
@@ -24,7 +22,6 @@ export function PWAInstaller() {
                         updateViaCache: 'none'
                     });
 
-                    console.log('Service Worker registered successfully');
 
                     // Handle service worker updates
                     registration.addEventListener('updatefound', () => {
@@ -32,7 +29,6 @@ export function PWAInstaller() {
                         if (newWorker) {
                             newWorker.addEventListener('statechange', () => {
                                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    console.log('New version available');
                                     // Could show update notification here
                                 }
                             });
@@ -62,7 +58,6 @@ export function PWAInstaller() {
                 }
             }
 
-            console.log('Valid icons found:', validIcons);
             return validIcons;
         };
 
@@ -79,7 +74,6 @@ export function PWAInstaller() {
                 manifestLink.rel = 'manifest';
                 manifestLink.href = '/manifest.json';
                 document.head.appendChild(manifestLink);
-                console.log('Added manifest link');
             }
 
             if (!document.querySelector('meta[name="theme-color"]')) {
@@ -87,7 +81,6 @@ export function PWAInstaller() {
                 themeColorMeta.name = 'theme-color';
                 themeColorMeta.content = '#0ea5e9';
                 document.head.appendChild(themeColorMeta);
-                console.log('Added theme-color meta');
             }
 
             // Apple-specific meta tags

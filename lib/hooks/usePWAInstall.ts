@@ -95,14 +95,6 @@ export function usePWAInstall() {
         // Additional check: if URL contains utm_source=web_app_manifest
         const isFromManifest = window.location.search.includes('utm_source=web_app_manifest');
 
-        console.log('Installation detection:', {
-            isStandalone,
-            isIOSStandalone,
-            isAndroidApp,
-            isFromManifest,
-            displayMode: window.matchMedia('(display-mode: standalone)').matches ? 'standalone' : 'browser',
-            referrer: document.referrer
-        });
 
         return isStandalone || isIOSStandalone || isAndroidApp || isFromManifest;
     }, []);
@@ -128,13 +120,6 @@ export function usePWAInstall() {
             // Check if not already installed
             const notInstalled = !checkIfInstalled();
 
-            console.log('PWA Installation Criteria:', {
-                hasServiceWorker,
-                hasManifest,
-                isSecure,
-                notInstalled,
-                userAgent: navigator.userAgent
-            });
 
             return hasServiceWorker && hasManifest && isSecure && notInstalled;
         } catch (error) {
@@ -144,8 +129,6 @@ export function usePWAInstall() {
     }, [checkIfInstalled]);
 
     const installPWA = useCallback(async () => {
-        console.log('Install PWA triggered for:', state.browserName);
-        console.log('Has install prompt:', !!state.installPrompt);
 
         // Priority 1: Use native install prompt if available
         if (state.installPrompt) {
@@ -154,8 +137,6 @@ export function usePWAInstall() {
             try {
                 await state.installPrompt.prompt();
                 const choiceResult = await state.installPrompt.userChoice;
-
-                console.log('User installation choice:', choiceResult.outcome);
 
                 if (choiceResult.outcome === 'accepted') {
                     setState(prev => ({
@@ -180,13 +161,11 @@ export function usePWAInstall() {
 
         // Priority 2: iOS Safari manual instructions
         if (state.isIOSSafari) {
-            console.log('iOS Safari - showing manual install instructions');
             return 'ios-instructions';
         }
 
         // Priority 3: Other browsers - show manual instructions
         if (state.isAndroid || state.isDesktop) {
-            console.log('No native prompt available, showing manual instructions');
             return 'manual-install';
         }
 
@@ -200,8 +179,6 @@ export function usePWAInstall() {
         const browserInfo = detectBrowser();
         const isInstalled = checkIfInstalled();
 
-        console.log('Refreshing install status:', { isInstalled, browserInfo });
-
         setState(prev => ({
             ...prev,
             ...browserInfo,
@@ -212,13 +189,8 @@ export function usePWAInstall() {
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
-
-        console.log('PWA Hook: Initializing...');
-
         const browserInfo = detectBrowser();
         const isInstalled = checkIfInstalled();
-
-        console.log('Initial state:', { browserInfo, isInstalled });
 
         setState(prev => ({
             ...prev,
@@ -232,7 +204,6 @@ export function usePWAInstall() {
         let deferredPrompt: BeforeInstallPromptEvent | null = null;
 
         const handleBeforeInstallPrompt = (e: Event) => {
-            console.log('beforeinstallprompt event received - native install available!');
             e.preventDefault();
 
             const installEvent = e as BeforeInstallPromptEvent;
@@ -247,7 +218,6 @@ export function usePWAInstall() {
         };
 
         const handleAppInstalled = () => {
-            console.log('App installed successfully');
             setState(prev => ({
                 ...prev,
                 isInstalled: true,
@@ -261,7 +231,6 @@ export function usePWAInstall() {
 
         // Listen for display mode changes (when app is actually installed)
         const handleDisplayModeChange = () => {
-            console.log('Display mode changed, checking install status...');
             setTimeout(refreshInstallStatus, 1000); // Delay to ensure state has updated
         };
 
@@ -276,7 +245,6 @@ export function usePWAInstall() {
         // Check installation criteria and enable install options
         checkInstallationCriteria().then(meetsCriteria => {
             if (meetsCriteria && !isInstalled) {
-                console.log('PWA installation criteria met');
                 setState(prev => ({
                     ...prev,
                     isInstallable: true,
@@ -307,7 +275,6 @@ export function usePWAInstall() {
 
     // Manual reset function for development/testing
     const resetInstallState = useCallback(() => {
-        console.log('Manually resetting install state');
         setState(prev => ({
             ...prev,
             isInstalled: false,

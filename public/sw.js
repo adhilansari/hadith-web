@@ -10,13 +10,10 @@ const STATIC_ASSETS = [
 
 // Install event
 self.addEventListener('install', event => {
-    console.log('Service Worker: Installing...');
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
-            console.log('Service Worker: Caching static assets');
             return cache.addAll(STATIC_ASSETS);
         }).then(() => {
-            console.log('Service Worker: Install complete');
             return self.skipWaiting();
         }).catch(error => {
             console.error('Service Worker: Install failed', error);
@@ -26,7 +23,6 @@ self.addEventListener('install', event => {
 
 // Activate event
 self.addEventListener('activate', event => {
-    console.log('Service Worker: Activating...');
     event.waitUntil(
         Promise.all([
             caches.keys().then(cacheNames => {
@@ -35,7 +31,6 @@ self.addEventListener('activate', event => {
                     cacheNames
                         .filter(cacheName => !validCaches.includes(cacheName))
                         .map(cacheName => {
-                            console.log('Service Worker: Deleting old cache:', cacheName);
                             return caches.delete(cacheName);
                         })
                 );
@@ -117,9 +112,7 @@ async function handleNavigationRequest(request) {
         }
 
         return networkResponse;
-    } catch (error) {
-        console.log('Navigation failed, serving offline page');
-
+    } catch {
         // Try to serve cached page first
         const cache = await caches.open(RUNTIME_CACHE);
         const cachedResponse = await cache.match(request);
