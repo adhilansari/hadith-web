@@ -7,6 +7,11 @@ interface PWAInstallState {
     isInstalled: boolean;
     isInstalling: boolean;
     installPrompt: BeforeInstallPromptEvent | null;
+    canInstall: boolean;
+    isIOSSafari: boolean;
+    isAndroid: boolean;
+    isDesktop: boolean;
+    browserName: string;
 }
 
 interface BeforeInstallPromptEvent extends Event {
@@ -18,264 +23,304 @@ interface BeforeInstallPromptEvent extends Event {
     prompt(): Promise<void>;
 }
 
+interface NavigatorWithStandalone extends Navigator {
+    standalone?: boolean;
+}
+
 export function usePWAInstall() {
     const [state, setState] = useState<PWAInstallState>({
         isInstallable: false,
         isInstalled: false,
         isInstalling: false,
         installPrompt: null,
+        canInstall: false,
+        isIOSSafari: false,
+        isAndroid: false,
+        isDesktop: false,
+        browserName: 'Unknown',
     });
 
-    const checkPWARequirements = useCallback(async () => {
-        if (typeof window === 'undefined') return {
-            https: false,
-            serviceWorker: false,
-            manifest: false,
-            manifestValid: false,
-            serviceWorkerRegistered: false,
-            icons: false
+    // Enhanced browser detection
+    const detectBrowser = useCallback(() => {
+        if (typeof navigator === 'undefined') return {
+            isIOSSafari: false,
+            isAndroid: false,
+            isDesktop: false,
+            browserName: 'Unknown'
         };
 
-        const requirements = {
-            https: window.location.protocol === 'https:' || window.location.hostname === 'localhost',
-            serviceWorker: 'serviceWorker' in navigator,
-            manifest: false,
-            manifestValid: false,
-            serviceWorkerRegistered: false,
-            icons: false
-        };
+        const userAgent = navigator.userAgent;
 
-        // Check manifest
-        try {
-            const manifestResponse = await fetch('/manifest.json');
-            requirements.manifest = manifestResponse.ok;
+        // iOS Safari detection
+        const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+        const isSafari = /Safari/.test(userAgent) && !/Chrome|CriOS|FxiOS|EdgiOS/.test(userAgent);
+        const isIOSSafari = isIOS && isSafari;
 
-            if (requirements.manifest) {
-                const manifestData = await manifestResponse.json();
-                requirements.manifestValid = !!(
-                    manifestData.name &&
-                    manifestData.start_url &&
-                    manifestData.display &&
-                    manifestData.icons &&
-                    manifestData.icons.length >= 2
-                );
-                requirements.icons = manifestData.icons.some((icon: { sizes: string }) =>
-                    icon.sizes === '192x192' || icon.sizes === '512x512'
-                );
-            }
-        } catch (error) {
-            console.error('Manifest check failed:', error);
+        // Android detection
+        const isAndroid = /Android/.test(userAgent);
+
+        // Desktop detection
+        const isDesktop = !isIOS && !isAndroid;
+
+        // Browser name detection
+        let browserName = 'Unknown';
+        if (/Chrome/.test(userAgent) && !/Edge/.test(userAgent)) {
+            browserName = 'Chrome';
+        } else if (/Firefox/.test(userAgent)) {
+            browserName = 'Firefox';
+        } else if (/Safari/.test(userAgent) && !/Chrome/.test(userAgent)) {
+            browserName = 'Safari';
+        } else if (/Edge/.test(userAgent)) {
+            browserName = 'Edge';
+        } else if (/Opera|OPR/.test(userAgent)) {
+            browserName = 'Opera';
         }
 
-        // Check service worker
-        if (requirements.serviceWorker) {
-            try {
-                const registration = await navigator.serviceWorker.getRegistration();
-                requirements.serviceWorkerRegistered = !!registration;
-            } catch (error) {
-                console.error('Service worker check failed:', error);
-            }
-        }
-
-        console.log('PWA Requirements Check:', requirements);
-        return requirements;
+        return { isIOSSafari, isAndroid, isDesktop, browserName };
     }, []);
 
+    // More accurate installation detection
     const checkIfInstalled = useCallback(() => {
         if (typeof window === 'undefined') return false;
 
-        // Check for standalone mode
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
-            (window.navigator as NavigatorWithStandalone).standalone === true ||
-            document.referrer.includes('android-app://');
+        // Check if running in standalone mode (actually installed)
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
 
-        return isStandalone;
+        // iOS Safari standalone check
+        const isIOSStandalone = (window.navigator as NavigatorWithStandalone).standalone === true;
+
+        // Android installed app check
+        const isAndroidApp = document.referrer.includes('android-app://');
+
+        // Additional check: if URL contains utm_source=web_app_manifest
+        const isFromManifest = window.location.search.includes('utm_source=web_app_manifest');
+
+        console.log('Installation detection:', {
+            isStandalone,
+            isIOSStandalone,
+            isAndroidApp,
+            isFromManifest,
+            displayMode: window.matchMedia('(display-mode: standalone)').matches ? 'standalone' : 'browser',
+            referrer: document.referrer
+        });
+
+        return isStandalone || isIOSStandalone || isAndroidApp || isFromManifest;
     }, []);
 
-    interface NavigatorWithStandalone extends Navigator {
-        standalone?: boolean;
-    }
-
-    const installPWA = useCallback(async () => {
-        console.log('InstallPWA called, prompt available:', !!state.installPrompt);
-
-        if (!state.installPrompt) {
-            console.warn('Install prompt not available - checking requirements...');
-            await checkPWARequirements();
-
-            // Show helpful message
-            alert('Install prompt not available. Please check:\n' +
-                '1. You are on HTTPS or localhost\n' +
-                '2. Manifest.json is valid\n' +
-                '3. Service worker is registered\n' +
-                '4. You haven\'t dismissed the prompt recently\n\n' +
-                'Check browser console for detailed requirements.');
-            return false;
-        }
-
-        setState(prev => ({ ...prev, isInstalling: true }));
+    // Enhanced installation criteria check
+    const checkInstallationCriteria = useCallback(async () => {
+        if (typeof window === 'undefined') return false;
 
         try {
-            await state.installPrompt.prompt();
-            const choiceResult = await state.installPrompt.userChoice;
-            console.log('User choice:', choiceResult);
+            // Check if service worker is registered
+            const swRegistration = await navigator.serviceWorker?.getRegistration();
+            const hasServiceWorker = !!swRegistration;
 
-            if (choiceResult.outcome === 'accepted') {
-                console.log('PWA installation accepted');
-                setState(prev => ({
-                    ...prev,
-                    isInstalled: true,
-                    isInstallable: false,
-                    installPrompt: null,
-                    isInstalling: false,
-                }));
-                return true;
-            } else {
-                console.log('PWA installation dismissed');
+            // Check if manifest is accessible
+            const manifestResponse = await fetch('/manifest.json').catch(() => null);
+            const hasManifest = manifestResponse?.ok;
+
+            // Check if HTTPS (or localhost)
+            const isSecure = window.location.protocol === 'https:' ||
+                window.location.hostname === 'localhost' ||
+                window.location.hostname === '127.0.0.1';
+
+            // Check if not already installed
+            const notInstalled = !checkIfInstalled();
+
+            console.log('PWA Installation Criteria:', {
+                hasServiceWorker,
+                hasManifest,
+                isSecure,
+                notInstalled,
+                userAgent: navigator.userAgent
+            });
+
+            return hasServiceWorker && hasManifest && isSecure && notInstalled;
+        } catch (error) {
+            console.error('Error checking installation criteria:', error);
+            return false;
+        }
+    }, [checkIfInstalled]);
+
+    const installPWA = useCallback(async () => {
+        console.log('Install PWA triggered for:', state.browserName);
+        console.log('Has install prompt:', !!state.installPrompt);
+
+        // Priority 1: Use native install prompt if available
+        if (state.installPrompt) {
+            setState(prev => ({ ...prev, isInstalling: true }));
+
+            try {
+                await state.installPrompt.prompt();
+                const choiceResult = await state.installPrompt.userChoice;
+
+                console.log('User installation choice:', choiceResult.outcome);
+
+                if (choiceResult.outcome === 'accepted') {
+                    setState(prev => ({
+                        ...prev,
+                        isInstalled: true,
+                        isInstallable: false,
+                        canInstall: false,
+                        installPrompt: null,
+                        isInstalling: false,
+                    }));
+                    return true;
+                } else {
+                    setState(prev => ({ ...prev, isInstalling: false }));
+                    return false;
+                }
+            } catch (error) {
+                console.error('Installation error:', error);
                 setState(prev => ({ ...prev, isInstalling: false }));
                 return false;
             }
-        } catch (error) {
-            console.error('Error during PWA installation:', error);
-            setState(prev => ({ ...prev, isInstalling: false }));
-            return false;
         }
-    }, [state.installPrompt, checkPWARequirements]);
 
-    const dismissInstall = useCallback(() => {
+        // Priority 2: iOS Safari manual instructions
+        if (state.isIOSSafari) {
+            console.log('iOS Safari - showing manual install instructions');
+            return 'ios-instructions';
+        }
+
+        // Priority 3: Other browsers - show manual instructions
+        if (state.isAndroid || state.isDesktop) {
+            console.log('No native prompt available, showing manual instructions');
+            return 'manual-install';
+        }
+
+        // Fallback
+        console.warn('Install not supported on this platform');
+        return false;
+    }, [state]);
+
+    // Force refresh installation status
+    const refreshInstallStatus = useCallback(() => {
+        const browserInfo = detectBrowser();
+        const isInstalled = checkIfInstalled();
+
+        console.log('Refreshing install status:', { isInstalled, browserInfo });
+
         setState(prev => ({
             ...prev,
-            isInstallable: false,
-            installPrompt: null,
+            ...browserInfo,
+            isInstalled,
+            canInstall: !isInstalled && (prev.isInstallable || prev.isIOSSafari)
         }));
-    }, []);
+    }, [detectBrowser, checkIfInstalled]);
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
 
         console.log('PWA Hook: Initializing...');
 
-        // Initial requirements check
-        checkPWARequirements();
-
+        const browserInfo = detectBrowser();
         const isInstalled = checkIfInstalled();
-        console.log('Is app installed?', isInstalled);
 
-        if (isInstalled) {
-            setState(prev => ({ ...prev, isInstalled: true }));
-            return;
-        }
+        console.log('Initial state:', { browserInfo, isInstalled });
+
+        setState(prev => ({
+            ...prev,
+            ...browserInfo,
+            isInstalled,
+            canInstall: !isInstalled
+        }));
+
+        if (isInstalled) return;
 
         let deferredPrompt: BeforeInstallPromptEvent | null = null;
 
-        const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
-            console.log('✅ beforeinstallprompt event fired!');
+        const handleBeforeInstallPrompt = (e: Event) => {
+            console.log('beforeinstallprompt event received - native install available!');
             e.preventDefault();
-            deferredPrompt = e;
+
+            const installEvent = e as BeforeInstallPromptEvent;
+            deferredPrompt = installEvent;
+
             setState(prev => ({
                 ...prev,
                 isInstallable: true,
-                installPrompt: e,
+                installPrompt: installEvent,
+                canInstall: !prev.isInstalled,
             }));
         };
 
         const handleAppInstalled = () => {
-            console.log('✅ appinstalled event fired');
+            console.log('App installed successfully');
             setState(prev => ({
                 ...prev,
                 isInstalled: true,
                 isInstallable: false,
+                canInstall: false,
                 installPrompt: null,
                 isInstalling: false,
             }));
             deferredPrompt = null;
         };
 
+        // Listen for display mode changes (when app is actually installed)
+        const handleDisplayModeChange = () => {
+            console.log('Display mode changed, checking install status...');
+            setTimeout(refreshInstallStatus, 1000); // Delay to ensure state has updated
+        };
+
         // Add event listeners
-        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt as EventListener);
+        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
         window.addEventListener('appinstalled', handleAppInstalled);
 
-        // Enhanced iOS detection
-        const isIOSSafari = /iPad|iPhone|iPod/.test(navigator.userAgent) &&
-            /Safari/.test(navigator.userAgent) &&
-            !/CriOS|FxiOS|EdgiOS/.test(navigator.userAgent);
+        // Listen for display mode changes
+        const displayModeQuery = window.matchMedia('(display-mode: standalone)');
+        displayModeQuery.addListener(handleDisplayModeChange);
 
-        if (isIOSSafari && !isInstalled) {
-            console.log('iOS Safari detected - enabling manual install');
-            setState(prev => ({ ...prev, isInstallable: true }));
-        }
-
-        // Force show in development after 5 seconds if no prompt
-        if (window.location.hostname === 'localhost') {
-            const devTimer = setTimeout(() => {
-                if (!deferredPrompt && !isInstalled) {
-                    console.log('Development: Force enabling install after 5s timeout');
-                    setState(prev => ({
-                        ...prev,
-                        isInstallable: true
-                    }));
-                }
-            }, 5000);
-
-            return () => {
-                clearTimeout(devTimer);
-                window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt as EventListener);
-                window.removeEventListener('appinstalled', handleAppInstalled);
-            };
-        }
+        // Check installation criteria and enable install options
+        checkInstallationCriteria().then(meetsCriteria => {
+            if (meetsCriteria && !isInstalled) {
+                console.log('PWA installation criteria met');
+                setState(prev => ({
+                    ...prev,
+                    isInstallable: true,
+                    canInstall: true,
+                }));
+            }
+        });
 
         return () => {
-            window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt as EventListener);
+            window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
             window.removeEventListener('appinstalled', handleAppInstalled);
+            displayModeQuery.removeListener(handleDisplayModeChange);
         };
-    }, [checkIfInstalled, checkPWARequirements]);
+    }, [detectBrowser, checkIfInstalled, checkInstallationCriteria, refreshInstallStatus]);
 
-    const getDebugInfo = useCallback(() => {
-        if (typeof window === 'undefined') return {};
+    const getDebugInfo = useCallback(() => ({
+        ...state,
+        protocol: typeof window !== 'undefined' ? window.location.protocol : 'N/A',
+        hostname: typeof window !== 'undefined' ? window.location.hostname : 'N/A',
+        userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'N/A',
+        serviceWorkerSupported: typeof navigator !== 'undefined' && 'serviceWorker' in navigator,
+        displayMode: typeof window !== 'undefined' ?
+            (window.matchMedia('(display-mode: standalone)').matches ? 'standalone' : 'browser') : 'N/A',
+        standaloneIOS: typeof window !== 'undefined' ? (window.navigator as NavigatorWithStandalone).standalone : false,
+        referrer: typeof document !== 'undefined' ? document.referrer : 'N/A',
+        timestamp: new Date().toISOString(),
+    }), [state]);
 
-        return {
-            isInstallable: state.isInstallable,
-            isInstalled: state.isInstalled,
-            isInstalling: state.isInstalling,
-            hasPrompt: !!state.installPrompt,
-            canInstall: state.isInstallable && !state.isInstalled && !state.isInstalling,
-            userAgent: navigator.userAgent,
-            protocol: window.location.protocol,
-            hostname: window.location.hostname,
-            isStandalone: window.matchMedia('(display-mode: standalone)').matches,
-            serviceWorkerSupported: 'serviceWorker' in navigator,
-            referrer: document.referrer,
-            manifestPresent: document.querySelector('link[rel="manifest"]') !== null,
-            timestamp: new Date().toISOString()
-        };
-    }, [state]);
-
-    const forceCheck = useCallback(async () => {
-        console.log('Force checking PWA requirements...');
-        const requirements = await checkPWARequirements();
-
-        if (requirements.https &&
-            requirements.manifest &&
-            requirements.manifestValid &&
-            requirements.serviceWorkerRegistered) {
-            console.log('✅ All PWA requirements met - install should be available');
-            if (!state.isInstalled && !state.isInstallable) {
-                setState(prev => ({ ...prev, isInstallable: true }));
-            }
-        } else {
-            console.log('❌ PWA requirements not met:', requirements);
-        }
-
-        return requirements;
-    }, [checkPWARequirements, state.isInstalled, state.isInstallable]);
+    // Manual reset function for development/testing
+    const resetInstallState = useCallback(() => {
+        console.log('Manually resetting install state');
+        setState(prev => ({
+            ...prev,
+            isInstalled: false,
+            canInstall: true,
+            isInstallable: true,
+        }));
+    }, []);
 
     return {
         ...state,
         installPWA,
-        dismissInstall,
-        canInstall: state.isInstallable && !state.isInstalled && !state.isInstalling,
+        refreshInstallStatus,
+        resetInstallState, // For development/testing
         getDebugInfo,
-        forceCheck, // New method to manually trigger requirements check
-        checkPWARequirements // Expose for debugging
     };
 }

@@ -457,14 +457,27 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Arabic text styling */
+  /* Arabic text styling - Fixed with proper font sizes */
   .arabic-text {
-    font-family: "Amiri", serif;
-    line-height: 2.2;
-    font-size: 1.25rem;
+    font-family: "Noto Naskh Arabic", "Amiri", serif;
+    line-height: 1.8;
     direction: rtl;
     text-align: right;
     font-weight: 400;
+    unicode-bidi: embed;
+  }
+
+  /* Arabic font size classes - Fixed */
+  .arabic-text-small {
+    font-size: var(--arabic-text-small) !important;
+  }
+
+  .arabic-text-medium {
+    font-size: var(--arabic-text-medium) !important;
+  }
+
+  .arabic-text-large {
+    font-size: var(--arabic-text-large) !important;
   }
 
   /* Glass morphism effect */
