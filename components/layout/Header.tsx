@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { SearchBar } from '@/components/search/SearchBar';
 import { useTheme } from '@/lib/hooks/useTheme';
 import { Sidebar } from './Sidebar';
+import Link from 'next/link';
 
 export function Header() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -59,9 +60,9 @@ export function Header() {
                                 <Menu className="w-5 h-5" />
                             </Button>
 
-                            <h1 className="text-xl font-bold gradient-text-primary whitespace-nowrap">
+                            <Link href={'/'} className="text-xl font-bold gradient-text-primary whitespace-nowrap">
                                 Hadith.net
-                            </h1>
+                            </Link>
                         </div>
 
                         {/* Contextual Search Bar */}
