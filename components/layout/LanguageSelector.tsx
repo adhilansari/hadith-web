@@ -32,20 +32,29 @@ export function LanguageSelector({
 
     // Get available languages for the current book
     const getBookLanguages = (): ILanguageOption[] => {
-        if (!editions || !currentBook) return [];
+        // HARDCODED: Return only English for now
+        return [{
+            code: 'eng',
+            name: 'English',
+            nativeName: 'English'
+        }];
 
+        /*
+        // ORIGINAL DYNAMIC LANGUAGE DETECTION (commented out)
+        if (!editions || !currentBook) return [];
+    
         const edition = editions[currentBook as keyof typeof editions];
         if (!edition) return [];
-
+    
         // Extract unique language codes from collection names
         const languageCodes = new Set<string>();
         edition.collection.forEach(collection => {
             const langCode = extractLanguageCode(collection.name);
-            if (langCode !== 'unknown') {
+            if (langCode !== 'unknown' && langCode !== 'ara') { // Filter out Arabic
                 languageCodes.add(langCode);
             }
         });
-
+    
         // Convert to language options with proper names
         return Array.from(languageCodes)
             .map(code => {
@@ -57,13 +66,12 @@ export function LanguageSelector({
                 };
             })
             .sort((a, b) => {
-                // Priority order: Arabic first, then English, then others alphabetically
-                if (a.code === 'ara') return -1;
-                if (b.code === 'ara') return 1;
+                // Priority order: English first, then others alphabetically
                 if (a.code === 'eng') return -1;
                 if (b.code === 'eng') return 1;
                 return a.name.localeCompare(b.name);
             });
+        */
     };
 
     const availableLanguages = getBookLanguages();

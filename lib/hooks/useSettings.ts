@@ -3,7 +3,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Theme, IExtendedSettings, ILanguageOption } from '@/lib/types/hadith';
+import type { Theme, IExtendedSettings } from '@/lib/types/hadith';
 
 interface SettingsStore extends IExtendedSettings {
     // Internal state
@@ -17,7 +17,6 @@ interface SettingsStore extends IExtendedSettings {
 
     // Language actions
     setLanguage: (language: string) => void;
-    getAvailableLanguages: () => ILanguageOption[];
 
     // Font size actions
     setFontSize: (size: 'small' | 'medium' | 'large') => void;
@@ -117,17 +116,6 @@ export const useSettingsStore = create<SettingsStore>()(
 
             // Language actions
             setLanguage: (language) => set({ language }),
-
-            getAvailableLanguages: () => [
-                { code: 'eng', name: 'English', nativeName: 'English' },
-                { code: 'ara', name: 'Arabic', nativeName: 'العربية' },
-                { code: 'urd', name: 'Urdu', nativeName: 'اردو' },
-                { code: 'tur', name: 'Turkish', nativeName: 'Türkçe' },
-                { code: 'ind', name: 'Indonesian', nativeName: 'Bahasa Indonesia' },
-                { code: 'mal', name: 'Malay', nativeName: 'Bahasa Melayu' },
-                { code: 'fra', name: 'French', nativeName: 'Français' },
-                { code: 'spa', name: 'Spanish', nativeName: 'Español' },
-            ],
 
             // Font size actions
             setFontSize: (fontSize) => set({ fontSize }),
