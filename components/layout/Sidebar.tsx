@@ -121,7 +121,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             <div className="fixed inset-0 bg-black/50 z-50 lg:hidden" onClick={onClose} />
 
             <div className="fixed right-0 top-0 h-full w-80 bg-background border-l border-border z-50 shadow-2xl overflow-y-auto">
-                <div className="p-6">
+                <div className="py-6 px-4">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-2">
                             <Settings className="w-5 h-5 text-primary" />
@@ -406,6 +406,29 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                                 </p>
                             </Card>
                         )}
+
+                        {/* References Section */}
+                        <Card>
+                            <div className="flex items-center gap-2 mb-3">
+                                <Book className="w-4 h-4 text-primary" />
+                                <h3 className="font-medium">Data Sources</h3>
+                            </div>
+                            <div className="text-sm text-muted-foreground space-y-3">
+                                <div className="bg-muted/30 p-3 rounded-lg">
+                                    <p className="font-medium text-foreground mb-2">All Hadith Collections:</p>
+                                    <ul className="space-y-1 text-xs">
+                                        <li><strong>Source:</strong> github.com</li>
+                                        <li><strong>URL:</strong> <a href="https://github.com/fawazahmed0/hadiths" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">github.com/fawazahmed0/hadiths</a></li>
+                                        <li><strong>Author:</strong> fawazahmed0</li>
+                                        <li><strong>Retrieved:</strong> September 2025</li>
+                                    </ul>
+                                </div>
+                                <div className="text-xs">
+                                    <p className="font-medium text-foreground mb-1">Includes:</p>
+                                    <p>Sahih al-Bukhari, Sahih Muslim, Sunan Abu Dawud, Jami At-Tirmidhi, Sunan an-Nasa&apos;i, Sunan Ibn Majah, Muwatta Malik, Forty Hadith of an-Nawawi, Forty Hadith Qudsi, and Forty Hadith of Shah Waliullah Dehlawi</p>
+                                </div>
+                            </div>
+                        </Card>
 
                         <Card>
                             <div className="flex items-center gap-2 mb-2">

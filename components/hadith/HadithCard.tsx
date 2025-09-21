@@ -109,20 +109,26 @@ export function HadithCard({ hadith, bookName, searchQuery }: HadithCardProps) {
                 {hadith.arabic.hadithnumber}
             </div>
 
-            {/* Arabic Text */}
-            <div className={cn(
-                'arabic-text mb-6 leading-relaxed select-text',
-                arabicFontSizeClasses[arabicFontSize]
-            )}>
-                {highlightText(hadith.arabic.text, searchQuery)}
-            </div>
+            <div className="flex flex-col md:flex-row gap-5 items-center justify-center w-full">
+                {/* Arabic Text */}
+                <div
+                    className={cn(
+                        'arabic-text mb-6 leading-relaxed select-text md:w-1/2 text-right order-1 md:order-2',
+                        arabicFontSizeClasses[arabicFontSize]
+                    )}
+                >
+                    {highlightText(hadith.arabic.text, searchQuery)}
+                </div>
 
-            {/* Translation Text */}
-            <div className={cn(
-                'text-foreground/80 leading-relaxed mb-6 select-text',
-                fontSizeClasses[fontSize]
-            )}>
-                {highlightText(hadith.translation.text, searchQuery)}
+                {/* Translation Text */}
+                <div
+                    className={cn(
+                        'text-foreground/80 leading-relaxed mb-6 select-text md:w-1/2 order-2 md:order-1',
+                        fontSizeClasses[fontSize]
+                    )}
+                >
+                    {highlightText(hadith.translation.text, searchQuery)}
+                </div>
             </div>
 
             {/* Grades - Only show if enabled in settings */}
