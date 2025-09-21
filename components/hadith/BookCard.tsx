@@ -80,7 +80,7 @@ export function BookCard({ bookKey, edition }: BookCardProps) {
                         </div>
 
                         {/* Languages Available */}
-                        <div className="flex flex-wrap gap-1 mt-2">
+                        {/* <div className="flex flex-wrap gap-1 mt-2">
                             {edition.collection.map((collection, index) => (
                                 <span
                                     key={index}
@@ -94,7 +94,7 @@ export function BookCard({ bookKey, edition }: BookCardProps) {
                                     +{edition.collection.length - 3}
                                 </span>
                             )}
-                        </div>
+                        </div> */}
                     </div>
                 </div>
 
