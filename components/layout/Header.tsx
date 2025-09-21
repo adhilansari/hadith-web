@@ -48,7 +48,7 @@ export function Header() {
     return (
         <>
             <header className="sticky top-0 z-40 w-full border-b border-border glassmorphism">
-                <div className="container w-[75rem] max-w-[75rem] mx-auto px-4">
+                <div className="container md:w-[75rem] max-w-[75rem] mx-auto px-4">
                     <div className="flex h-16 items-center justify-between gap-4">
                         <div className="flex items-center gap-4">
                             <Button
