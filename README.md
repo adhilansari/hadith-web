@@ -285,5 +285,3 @@ If you encounter any issues or have suggestions for improvement:
 - **Tailwind CSS v4**: [tailwindcss.com](https://tailwindcss.com)
 
 ---
-
-**Built with ❤️ for the Muslim community worldwide**
