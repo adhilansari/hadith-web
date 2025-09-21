@@ -13,7 +13,6 @@ export const LANGUAGE_NAMES: Record<string, { name: string; nativeName: string }
     'chi': { name: 'Chinese', nativeName: '中文' },
     'ger': { name: 'German', nativeName: 'Deutsch' },
     'ita': { name: 'Italian', nativeName: 'Italiano' },
-    'ara1': { name: 'Arabic (No Diacritics)', nativeName: 'العربية (بدون تشكيل)' },
 };
 
 export function extractLanguageCode(collectionName: string): string {
