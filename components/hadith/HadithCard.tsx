@@ -6,12 +6,16 @@ import { Bookmark, Share2, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useSettings } from '@/lib/hooks/useSettings';
+import { useBookmarks } from '@/lib/hooks/useBookmarks'; // Add this import
 import { cn } from '@/lib/utils/helpers';
 import type { ICombinedHadith } from '@/lib/types/hadith';
 
 interface HadithCardProps {
     hadith: ICombinedHadith;
     bookName: string;
+    bookKey: string; // Add bookKey prop
+    sectionId?: string; // Add optional section props
+    sectionName?: string;
     searchQuery?: string;
 }
 
@@ -46,10 +50,23 @@ function highlightText(text: string, searchQuery?: string): React.ReactNode {
     );
 }
 
-export function HadithCard({ hadith, bookName, searchQuery }: HadithCardProps) {
+export function HadithCard({
+    hadith,
+    bookName,
+    bookKey,
+    sectionId,
+    sectionName,
+    searchQuery
+}: HadithCardProps) {
     const [copied, setCopied] = useState(false);
-    const [bookmarked, setBookmarked] = useState(false);
     const { fontSize, arabicFontSize, showGrades, showReferences } = useSettings();
+
+    // Add bookmark hook
+    const { isBookmarked, toggleBookmark } = useBookmarks();
+
+    // Create hadith ID for bookmark checking
+    const hadithId = `${bookKey}-${hadith.arabic.hadithnumber}`;
+    const bookmarked = isBookmarked(hadithId);
 
     const fontSizeClasses = {
         small: 'text-sm',
@@ -90,6 +107,16 @@ export function HadithCard({ hadith, bookName, searchQuery }: HadithCardProps) {
             }
         } else {
             handleCopy();
+        }
+    };
+
+    // Handle bookmark toggle
+    const handleBookmarkToggle = async () => {
+        try {
+            await toggleBookmark(hadith, bookKey, bookName, sectionId, sectionName);
+        } catch (error) {
+            console.error('Failed to toggle bookmark:', error);
+            // You could show a toast notification here
         }
     };
 
@@ -178,7 +205,7 @@ export function HadithCard({ hadith, bookName, searchQuery }: HadithCardProps) {
                     <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setBookmarked(!bookmarked)}
+                        onClick={handleBookmarkToggle}
                         className={cn(
                             'transition-colors duration-200',
                             bookmarked

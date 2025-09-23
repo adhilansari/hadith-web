@@ -52,6 +52,7 @@ export function HadithList({ hadiths, bookName, loading }: HadithListProps) {
                     <HadithCard
                         hadith={hadith}
                         bookName={bookName}
+                        bookKey={bookName}
                         searchQuery={searchQuery}
                     />
                 </div>

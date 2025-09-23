@@ -1,16 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-import { Menu, Settings, Moon, Sun, Monitor, Palette } from 'lucide-react';
+import { Menu, Settings, Moon, Sun, Monitor, Palette, Bookmark } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { SearchBar } from '@/components/search/SearchBar';
 import { useTheme } from '@/lib/hooks/useTheme';
+import { useBookmarks } from '@/lib/hooks/useBookmarks';
 import { Sidebar } from './Sidebar';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export function Header() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const { theme, toggleBasicTheme, cycleColorThemes } = useTheme();
+    const { bookmarksCount } = useBookmarks();
+    const router = useRouter();
 
     const getThemeIcon = () => {
         switch (theme) {
@@ -45,10 +49,14 @@ export function Header() {
         }
     };
 
+    const handleBookmarksClick = () => {
+        router.push('/bookmarks');
+    };
+
     return (
         <>
             <header className="sticky top-0 z-40 w-full border-b border-border glassmorphism">
-                <div className="container md:w-[75rem] max-w-[75rem] mx-auto px-4">
+                <div className="container max-w-[75rem] mx-auto px-4">
                     <div className="flex h-16 items-center justify-between gap-4">
                         <div className="flex items-center gap-4">
                             <Button
@@ -70,7 +78,23 @@ export function Header() {
                             <SearchBar compact={true} />
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="items-center hidden md:flex gap-2">
+                            {/* Bookmarks Button */}
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleBookmarksClick}
+                                className="text-muted-foreground hover:text-primary transition-colors duration-200 relative"
+                                title={`View bookmarks (${bookmarksCount})`}
+                            >
+                                <Bookmark className="w-5 h-5" />
+                                {bookmarksCount > 0 && (
+                                    <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                                        {bookmarksCount > 99 ? '99+' : bookmarksCount}
+                                    </span>
+                                )}
+                            </Button>
+
                             {/* Theme Toggle Button */}
                             <Button
                                 variant="ghost"

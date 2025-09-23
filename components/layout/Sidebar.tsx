@@ -1,12 +1,14 @@
 'use client';
 
-import { X, Settings, Book, Palette, Type, Download, Smartphone, Share, Monitor, Chrome, Globe, RefreshCw, Bug, Zap, Sun, Moon } from 'lucide-react';
+import { X, Settings, Book, Palette, Type, Download, Smartphone, Share, Monitor, Chrome, Globe, RefreshCw, Bug, Zap, Sun, Moon, Bookmark } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useSettings } from '@/lib/hooks/useSettings';
+import { useBookmarks } from '@/lib/hooks/useBookmarks';
 import { usePWAInstall } from '@/lib/hooks/usePWAInstall';
 import { useCallback, useEffect, useState } from 'react';
 import { useTheme } from '@/lib/hooks/useTheme';
+import { useRouter } from 'next/navigation';
 
 interface SidebarProps {
     open: boolean;
@@ -19,7 +21,9 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     const [showManualInstructions, setShowManualInstructions] = useState(false);
     const [showDebug, setShowDebug] = useState(false);
     const settings = useSettings();
+    const { bookmarksCount } = useBookmarks();
     const pwa = usePWAInstall();
+    const router = useRouter();
 
     useEffect(() => {
         setIsClient(true);
@@ -112,6 +116,11 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         return 'Install App'; // Manual install
     };
 
+    const handleBookmarksClick = () => {
+        router.push('/bookmarks');
+        onClose();
+    };
+
     if (!isClient || !_hasHydrated || !open) {
         return null;
     }
@@ -145,6 +154,32 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                     </div>
 
                     <div className="space-y-6">
+
+                        {/* Bookmarks Section */}
+                        <Card>
+                            <div className="flex items-center gap-2 mb-4">
+                                <Bookmark className="w-4 h-4 text-primary" />
+                                <h3 className="font-medium text-foreground">Bookmarks</h3>
+                                {bookmarksCount > 0 && (
+                                    <span className="ml-auto bg-primary/10 text-primary px-2 py-1 rounded-full text-xs">
+                                        {bookmarksCount}
+                                    </span>
+                                )}
+                            </div>
+                            <Button
+                                variant="ghost"
+                                onClick={handleBookmarksClick}
+                                className="w-full justify-start"
+                            >
+                                <Bookmark className="w-4 h-4 mr-2" />
+                                View Bookmarks
+                                {bookmarksCount > 0 && (
+                                    <span className="ml-auto text-muted-foreground">
+                                        ({bookmarksCount})
+                                    </span>
+                                )}
+                            </Button>
+                        </Card>
 
                         {/* Theme Selection */}
                         <Card>
@@ -301,17 +336,6 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                                         : 'Install Hadith.net for offline access and better performance.'
                                     }
                                 </p>
-                                {/* <div className="flex items-center gap-2 mb-3">
-                                    {getBrowserIcon(pwa.browserName)}
-                                    <span className="text-xs text-muted-foreground">
-                                        {pwa.browserName} on {pwa.isAndroid ? 'Android' : pwa.isIOSSafari ? 'iOS' : 'Desktop'}
-                                    </span>
-                                    {pwa.installPrompt && (
-                                        <span className="ml-auto text-xs text-green-600 dark:text-green-400">
-                                            Native Install Ready
-                                        </span>
-                                    )}
-                                </div> */}
                                 <Button
                                     variant="primary"
                                     size="sm"
@@ -322,9 +346,6 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                                     {pwa.installPrompt && !pwa.isInstalling && (
                                         <Zap className="w-4 h-4 mr-2" />
                                     )}
-                                    {/* {!pwa.installPrompt && !pwa.isInstalling && (
-                                        <Download className="w-4 h-4 mr-2" />
-                                    )} */}
                                     {getInstallButtonText()}
                                 </Button>
                             </Card>

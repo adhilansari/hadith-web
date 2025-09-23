@@ -68,7 +68,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                 }
             });
 
-            return results.slice(0, 10); // Limit to 10 results
+            return results.slice(0, 10);
         } catch (error) {
             console.error('Book search failed:', error);
             return [];
@@ -86,7 +86,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
             const queryLower = query.toLowerCase();
 
             Object.entries(bookData.metadata.sections).forEach(([sectionId, sectionName]) => {
-                if (sectionId === '0') return; // Skip section 0
+                if (sectionId === '0') return;
 
                 const sectionNameLower = sectionName.toLowerCase();
 
@@ -114,7 +114,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    // Search for specific hadiths within current section or book
+    // Fixed hadith search function
     const searchHadiths = async (query: string): Promise<SearchResult[]> => {
         try {
             const bookKey = params?.book as string;
@@ -126,51 +126,93 @@ export function SearchProvider({ children }: { children: ReactNode }) {
             const queryLower = query.toLowerCase();
 
             if (sectionId) {
-                // Search within current section
-                const hadiths = await HadithAPI.getCombinedHadith(bookKey, sectionId, language);
+                // Search within current section using combined hadith data
+                try {
+                    const hadiths = await HadithAPI.getCombinedHadith(bookKey, sectionId, language);
 
-                hadiths.forEach((hadith) => {
-                    const translationText = hadith.translation.text.toLowerCase();
-                    const arabicText = hadith.arabic.text.toLowerCase();
+                    hadiths.forEach((hadith) => {
+                        // Search in translation text
+                        const translationText = hadith.translation?.text?.toLowerCase() || '';
+                        // Search in Arabic text
+                        const arabicText = hadith.arabic?.text?.toLowerCase() || '';
+                        // Search in hadith number
+                        const hadithNumber = hadith.arabic?.hadithnumber?.toString() || '';
 
-                    if (translationText.includes(queryLower) ||
-                        arabicText.includes(queryLower) ||
-                        hadith.arabic.hadithnumber.toString().includes(query)) {
+                        if (translationText.includes(queryLower) ||
+                            arabicText.includes(queryLower) ||
+                            hadithNumber.includes(query)) {
 
-                        results.push({
-                            type: 'hadith',
-                            id: hadith.arabic.hadithnumber.toString(),
-                            title: `Hadith ${hadith.arabic.hadithnumber}`,
-                            subtitle: truncateText(hadith.translation.text, 100),
-                            description: hadith.translation.grades?.[0]?.grade || '',
-                            data: hadith,
-                            url: `#hadith-${hadith.arabic.hadithnumber}`,
-                        });
-                    }
-                });
+                            results.push({
+                                type: 'hadith',
+                                id: hadithNumber,
+                                title: `Hadith ${hadithNumber}`,
+                                subtitle: truncateText(hadith.translation?.text || 'No translation available', 100),
+                                description: hadith.translation?.grades?.[0]?.grade || '',
+                                data: hadith,
+                                url: `#hadith-${hadithNumber}`,
+                            });
+                        }
+                    });
+                } catch (error) {
+                    console.error('Combined hadith search failed:', error);
+                    // Fallback: search in the book's hadith data
+                    const bookData = await HadithAPI.getHadithData(bookKey, language);
+                    const sectionHadiths = bookData.hadiths.filter(h =>
+                        bookData.metadata.section_details[sectionId] &&
+                        h.hadithnumber >= bookData.metadata.section_details[sectionId].hadithnumber_first &&
+                        h.hadithnumber <= bookData.metadata.section_details[sectionId].hadithnumber_last
+                    );
+
+                    sectionHadiths.forEach((hadith) => {
+                        const text = hadith.text?.toLowerCase() || '';
+                        const hadithNumber = hadith.hadithnumber?.toString() || '';
+
+                        if (text.includes(queryLower) || hadithNumber.includes(query)) {
+                            results.push({
+                                type: 'hadith',
+                                id: hadithNumber,
+                                title: `Hadith ${hadithNumber}`,
+                                subtitle: truncateText(hadith.text || 'No text available', 100),
+                                description: hadith.grades?.[0]?.grade || '',
+                                data: hadith,
+                                url: `#hadith-${hadithNumber}`,
+                            });
+                        }
+                    });
+                }
             } else {
                 // Search across entire book
                 const bookData = await HadithAPI.getHadithData(bookKey, language);
 
                 bookData.hadiths.forEach((hadith) => {
-                    const text = hadith.text.toLowerCase();
+                    const text = hadith.text?.toLowerCase() || '';
+                    const hadithNumber = hadith.hadithnumber?.toString() || '';
 
-                    if (text.includes(queryLower) ||
-                        hadith.hadithnumber.toString().includes(query)) {
+                    if (text.includes(queryLower) || hadithNumber.includes(query)) {
+                        // Find which section this hadith belongs to
+                        let sectionName = 'Unknown Section';
+                        for (const [secId, secDetail] of Object.entries(bookData.metadata.section_details)) {
+                            if (hadith.hadithnumber >= secDetail.hadithnumber_first &&
+                                hadith.hadithnumber <= secDetail.hadithnumber_last) {
+                                sectionName = bookData.metadata.sections[secId] || `Section ${secId}`;
+                                break;
+                            }
+                        }
 
                         results.push({
                             type: 'hadith',
-                            id: hadith.hadithnumber.toString(),
-                            title: `Hadith ${hadith.hadithnumber}`,
-                            subtitle: truncateText(hadith.text, 100),
-                            description: hadith.grades?.[0]?.grade || '',
+                            id: hadithNumber,
+                            title: `Hadith ${hadithNumber}`,
+                            subtitle: truncateText(hadith.text || 'No text available', 100),
+                            description: `${sectionName} • ${hadith.grades?.[0]?.grade || 'No grade'}`,
                             data: hadith,
+                            url: `/books/${bookKey}?hadith=${hadithNumber}`,
                         });
                     }
                 });
             }
 
-            return results.slice(0, 20); // More results for hadith search
+            return results.slice(0, 20);
         } catch (error) {
             console.error('Hadith search failed:', error);
             return [];
@@ -206,7 +248,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
         } finally {
             setIsSearching(false);
         }
-    }, []);
+    }, [searchType, params, language]);
 
     const clearSearch = useCallback(() => {
         setSearchQuery('');

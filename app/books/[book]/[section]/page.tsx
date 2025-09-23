@@ -24,7 +24,7 @@ export default function SectionPage() {
 
     if (error || !hadiths) {
         return (
-            <div className="container mx-auto md:w-[75rem] max-w-[75rem] px-4 py-8">
+            <div className="container mx-auto max-w-[75rem] px-4 py-8">
                 <div className="text-center">
                     <h2 className="text-2xl font-bold text-destructive mb-4">Section Not Found</h2>
                     <p className="text-muted-foreground mb-6">
@@ -43,7 +43,7 @@ export default function SectionPage() {
     const sectionDetail = bookData?.metadata.section_details[section];
 
     return (
-        <div className="container mx-auto md:w-[75rem] max-w-[75rem] px-4 py-8">
+        <div className="container mx-auto max-w-[75rem] px-4 py-8">
             {/* Header */}
             <div className="flex items-center gap-4 mb-8">
                 <Button
