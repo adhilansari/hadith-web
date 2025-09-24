@@ -1,6 +1,6 @@
 'use client';
 
-import { X, Settings, Book, Palette, Type, Download, Smartphone, Share, Monitor, Chrome, Globe, RefreshCw, Bug, Zap, Sun, Moon, Bookmark } from 'lucide-react';
+import { X, Book, Palette, Type, Download, Smartphone, Share, Monitor, Chrome, Globe, RefreshCw, Bug, Zap, Sun, Moon, Bookmark } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useSettings } from '@/lib/hooks/useSettings';
@@ -133,8 +133,8 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                 <div className="py-6 px-4">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-2">
-                            <Settings className="w-5 h-5 text-primary" />
-                            <h2 className="text-lg font-semibold text-foreground">Settings</h2>
+                            {/* <Settings className="w-5 h-5 text-primary" /> */}
+                            <h2 className="ml-2 text-lg font-semibold text-foreground">Menu</h2>
                         </div>
                         <div className="flex gap-2">
                             {process.env.NODE_ENV === 'development' && (
@@ -167,9 +167,9 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                                 )}
                             </div>
                             <Button
-                                variant="ghost"
+                                variant="secondary"
                                 onClick={handleBookmarksClick}
-                                className="w-full justify-start"
+                                className="w-full flex items-center justify-center"
                             >
                                 <Bookmark className="w-4 h-4 mr-2" />
                                 View Bookmarks

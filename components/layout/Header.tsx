@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Menu, Settings, Moon, Sun, Monitor, Palette, Bookmark } from 'lucide-react';
+import { Menu, Moon, Sun, Monitor, Palette, Bookmark, MenuIcon } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { SearchBar } from '@/components/search/SearchBar';
 import { useTheme } from '@/lib/hooks/useTheme';
@@ -125,7 +125,7 @@ export function Header() {
                                 onClick={() => setSidebarOpen(true)}
                                 className="text-muted-foreground hidden md:block hover:text-primary"
                             >
-                                <Settings className="w-5 h-5" />
+                                <MenuIcon className="w-5 h-5" />
                             </Button>
                         </div>
                     </div>
