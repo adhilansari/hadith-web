@@ -19,9 +19,9 @@ export async function GET(request: NextRequest) {
         let apiUrl: string;
 
         if (language === 'ara') {
-            apiUrl = `${baseUrl}@v1/data/ara-${book}.min.json`;
+            apiUrl = `${baseUrl}@main/data/ara-${book}.min.json`;
         } else {
-            apiUrl = `${baseUrl}@v1/translations/${language}-${book}.min.json`;
+            apiUrl = `${baseUrl}@main/translations/${language}-${book}.min.json`;
         }
 
         const response = await fetch(apiUrl, {

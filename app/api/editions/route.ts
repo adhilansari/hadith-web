@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
     try {
-        const response = await fetch('https://cdn.jsdelivr.net/gh/adhilansari/hadithDb@v2/editions.min.json', {
+        const response = await fetch('https://cdn.jsdelivr.net/gh/adhilansari/hadithDb@main/editions.min.json', {
             cache: 'force-cache',
             next: { revalidate: 86400 }, // 24 hours
         });

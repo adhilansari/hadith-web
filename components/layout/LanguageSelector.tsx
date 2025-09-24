@@ -32,20 +32,43 @@ export function LanguageSelector({
 
     // Get available languages for the current book
     const getBookLanguages = (): ILanguageOption[] => {
-        // HARDCODED: Return only English for now
-        return [{
-            code: 'eng',
-            name: 'English',
-            nativeName: 'English'
-        }];
+        // TEMP FIX: Return English always, add Malayalam if available
+        const langs: ILanguageOption[] = [
+            {
+                code: 'eng',
+                name: 'English',
+                nativeName: 'English',
+            },
+        ];
+
+        // Check if Malayalam edition is available
+        if (editions && currentBook) {
+            const edition = editions[currentBook as keyof typeof editions];
+            console.log('Current book edition:', edition);
+            if (edition) {
+                const hasMalayalam = edition.collection.some(collection =>
+                    extractLanguageCode(collection.name) === 'mal'
+                );
+                console.log('Malayalam available:', hasMalayalam);
+                if (hasMalayalam) {
+                    langs.push({
+                        code: 'mal',
+                        name: 'Malayalam',
+                        nativeName: 'മലയാളം',
+                    });
+                }
+            }
+        }
+
+        return langs;
 
         /*
         // ORIGINAL DYNAMIC LANGUAGE DETECTION (commented out)
         if (!editions || !currentBook) return [];
-    
+        
         const edition = editions[currentBook as keyof typeof editions];
         if (!edition) return [];
-    
+        
         // Extract unique language codes from collection names
         const languageCodes = new Set<string>();
         edition.collection.forEach(collection => {
@@ -54,7 +77,7 @@ export function LanguageSelector({
                 languageCodes.add(langCode);
             }
         });
-    
+        
         // Convert to language options with proper names
         return Array.from(languageCodes)
             .map(code => {
@@ -73,6 +96,7 @@ export function LanguageSelector({
             });
         */
     };
+
 
     const availableLanguages = getBookLanguages();
     const currentLanguageInfo = availableLanguages.find(lang => lang.code === language);

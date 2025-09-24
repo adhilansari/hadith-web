@@ -8,11 +8,11 @@ export const LANGUAGE_NAMES: Record<string, { name: string; nativeName: string }
     'fra': { name: 'French', nativeName: 'Français' },
     'rus': { name: 'Russian', nativeName: 'Русский' },
     'ben': { name: 'Bengali', nativeName: 'বাংলা' },
-    'mal': { name: 'Malay', nativeName: 'Bahasa Melayu' },
     'spa': { name: 'Spanish', nativeName: 'Español' },
     'chi': { name: 'Chinese', nativeName: '中文' },
     'ger': { name: 'German', nativeName: 'Deutsch' },
     'ita': { name: 'Italian', nativeName: 'Italiano' },
+    'mal': { name: 'Malayalam', nativeName: 'മലയാളം' },
 };
 
 export function extractLanguageCode(collectionName: string): string {

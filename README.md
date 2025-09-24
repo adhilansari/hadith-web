@@ -118,9 +118,9 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 The app integrates with the Hadith Database API:
 
-- **Editions**: `https://cdn.jsdelivr.net/gh/adhilansari/hadithDb@v2/editions.min.json`
-- **Arabic Data**: `https://cdn.jsdelivr.net/gh/adhilansari/hadithDb@v1/data/ara-{book}.json`
-- **Translations**: `https://cdn.jsdelivr.net/gh/adhilansari/hadithDb@v1/translations/{lang}-{book}.json`
+- **Editions**: `https://cdn.jsdelivr.net/gh/adhilansari/@hadithDb@main/editions.min.json`
+- **Arabic Data**: `https://cdn.jsdelivr.net/gh/adhilansari/hadithDb@main/data/ara-{book}.json`
+- **Translations**: `https://cdn.jsdelivr.net/gh/adhilansari/hadithDb@main/translations/{lang}-{book}.json`
 
 ### Supported Collections:
 
