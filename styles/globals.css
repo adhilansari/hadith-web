@@ -59,6 +59,51 @@
   --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-bounce-gentle: bounceGentle 2s infinite;
   --animate-gradient-shift: gradientShift 3s ease-in-out infinite;
+  /* Existing animations... */
+  --animate-highlight-pulse: highlightPulse 3s ease-in-out;
+  --animate-search-highlight: searchHighlight 2s ease-in-out;
+  --animate-glow: glow 2s ease-in-out infinite alternate;
+
+  @keyframes highlightPulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+      transform: scale(1);
+    }
+    50% {
+      box-shadow: 0 0 0 10px rgba(59, 130, 246, 0.2);
+      transform: scale(1.02);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+      transform: scale(1);
+    }
+  }
+
+  @keyframes searchHighlight {
+    0% {
+      background-color: rgba(255, 235, 59, 0.3);
+      box-shadow: 0 0 20px rgba(255, 235, 59, 0.5);
+    }
+    50% {
+      background-color: rgba(255, 235, 59, 0.15);
+      box-shadow: 0 0 10px rgba(255, 235, 59, 0.3);
+    }
+    100% {
+      background-color: rgba(255, 235, 59, 0.05);
+      box-shadow: 0 0 5px rgba(255, 235, 59, 0.1);
+    }
+  }
+
+  @keyframes glow {
+    from {
+      text-shadow: 0 0 5px currentColor, 0 0 10px currentColor,
+        0 0 15px currentColor;
+    }
+    to {
+      text-shadow: 0 0 10px currentColor, 0 0 20px currentColor,
+        0 0 30px currentColor;
+    }
+  }
 
   @keyframes fadeIn {
     0% {
@@ -522,6 +567,46 @@
 
   .feature-card-purple {
     @apply bg-gradient-to-br from-purple-500/10 to-purple-500/5 border border-purple-500/20;
+  }
+
+  /* Highlight animation classes */
+  .highlight-pulse {
+    animation: var(--animate-highlight-pulse);
+  }
+
+  .search-highlight {
+    animation: var(--animate-search-highlight);
+  }
+
+  .glow-text {
+    animation: var(--animate-glow);
+  }
+
+  /* Enhanced hadith card highlighting */
+  .hadith-url-highlight {
+    @apply ring-4 ring-primary/60 shadow-2xl bg-primary/5 scale-[1.02] transition-all duration-500;
+    animation: highlightPulse 3s ease-in-out;
+  }
+
+  .hadith-search-highlight {
+    @apply ring-2 ring-yellow-400/60 shadow-lg bg-yellow-50/50 dark:bg-yellow-900/10 transition-all duration-300;
+    animation: searchHighlight 2s ease-in-out;
+  }
+
+  /* Smooth scroll enhancement */
+  .smooth-scroll {
+    scroll-behavior: smooth;
+  }
+
+  /* Enhanced mark (highlight) styling */
+  mark {
+    @apply bg-primary/20 text-primary-foreground px-1 rounded transition-colors duration-200;
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  /* Dark mode mark styling */
+  .dark mark {
+    @apply bg-primary/30 text-primary-foreground;
   }
 }
 

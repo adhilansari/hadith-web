@@ -91,7 +91,14 @@ export default function SectionPage() {
             </div>
 
             {/* Hadiths List */}
-            <HadithList hadiths={hadiths} bookName={bookName} loading={isLoading} />
+            <HadithList
+                hadiths={hadiths}
+                bookName={bookName}
+                bookKey={book}
+                sectionId={section}
+                sectionName={sectionName}
+                loading={isLoading}
+            />
         </div>
     );
 }

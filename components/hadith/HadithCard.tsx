@@ -6,15 +6,15 @@ import { Bookmark, Share2, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useSettings } from '@/lib/hooks/useSettings';
-import { useBookmarks } from '@/lib/hooks/useBookmarks'; // Add this import
+import { useBookmarks } from '@/lib/hooks/useBookmarks';
 import { cn } from '@/lib/utils/helpers';
 import type { ICombinedHadith } from '@/lib/types/hadith';
 
 interface HadithCardProps {
     hadith: ICombinedHadith;
     bookName: string;
-    bookKey: string; // Add bookKey prop
-    sectionId?: string; // Add optional section props
+    bookKey: string;
+    sectionId?: string;
     sectionName?: string;
     searchQuery?: string;
 }
@@ -59,6 +59,7 @@ export function HadithCard({
     searchQuery
 }: HadithCardProps) {
     const [copied, setCopied] = useState(false);
+    const [shareSuccess, setShareSuccess] = useState(false);
     const { fontSize, arabicFontSize, showGrades, showReferences } = useSettings();
 
     // Add bookmark hook
@@ -80,8 +81,28 @@ export function HadithCard({
         large: 'text-2xl',
     };
 
+    // Generate the proper URL for this hadith
+    const generateHadithUrl = (): string => {
+        const baseUrl = window.location.origin;
+        const hadithNumber = hadith.arabic.hadithnumber;
+
+        if (sectionId) {
+            // If we're in a section, link to the section with hadith anchor
+            return `${baseUrl}/books/${bookKey}/${sectionId}#hadith-${hadithNumber}`;
+        } else {
+            // If we're viewing the whole book, use query parameter
+            return `${baseUrl}/books/${bookKey}?hadith=${hadithNumber}`;
+        }
+    };
+
     const handleCopy = async () => {
-        const text = `${hadith.arabic.text}\n\n${hadith.translation.text}\n\n— ${bookName}, Hadith ${hadith.arabic.hadithnumber}`;
+        const hadithUrl = generateHadithUrl();
+        const text = `${hadith.arabic.text}
+
+${hadith.translation.text}
+
+— ${bookName}, Hadith ${hadith.arabic.hadithnumber}
+${hadithUrl}`;
 
         try {
             await navigator.clipboard.writeText(text);
@@ -89,25 +110,50 @@ export function HadithCard({
             setTimeout(() => setCopied(false), 2000);
         } catch (err) {
             console.error('Failed to copy:', err);
+            // Fallback for older browsers
+            try {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+            } catch (fallbackError) {
+                console.error('Fallback copy failed:', fallbackError);
+            }
         }
     };
 
     const handleShare = async () => {
-        const text = `${hadith.translation.text}\n\n— ${bookName}, Hadith ${hadith.arabic.hadithnumber}`;
+        const hadithUrl = generateHadithUrl();
+        const text = `${hadith.arabic.text}
+
+${hadith.translation.text}
+
+— ${bookName}, Hadith ${hadith.arabic.hadithnumber}
+${hadithUrl}`;
 
         if (navigator.share) {
             try {
                 await navigator.share({
                     title: `Hadith from ${bookName}`,
                     text: text,
-                    url: window.location.href,
+                    url: hadithUrl,
                 });
+                setShareSuccess(true);
+                setTimeout(() => setShareSuccess(false), 2000);
+                return;
             } catch (err) {
-                console.error('Error sharing:', err);
+                if (err instanceof Error && err.name !== 'AbortError') {
+                    console.error('Error sharing:', err);
+                }
             }
-        } else {
-            handleCopy();
         }
+
+        // Fallback: copy same full text if Web Share API not available
+        await handleCopy();
     };
 
     // Handle bookmark toggle
@@ -116,14 +162,15 @@ export function HadithCard({
             await toggleBookmark(hadith, bookKey, bookName, sectionId, sectionName);
         } catch (error) {
             console.error('Failed to toggle bookmark:', error);
-            // You could show a toast notification here
         }
     };
+
 
     // Determine if this hadith matches the search query
     const isSearchMatch = searchQuery && (
         hadith.arabic.text.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        hadith.translation.text.toLowerCase().includes(searchQuery.toLowerCase())
+        hadith.translation.text.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        hadith.arabic.hadithnumber.toString().includes(searchQuery)
     );
 
     return (
@@ -222,7 +269,7 @@ export function HadithCard({
                         size="sm"
                         onClick={handleCopy}
                         className="text-muted-foreground hover:text-primary transition-colors duration-200"
-                        aria-label="Copy hadith text"
+                        aria-label="Copy hadith text with URL"
                     >
                         {copied ? (
                             <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
