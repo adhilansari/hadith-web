@@ -168,11 +168,11 @@ export function BookmarksPage() {
     return (
         <div className="container mx-auto px-4 py-8 max-w-4xl" >
             {/* Header */}
-            <div className="mb-8" >
-                <h1 className="text-3xl font-bold text-foreground mb-2" >
-                    Bookmarks({bookmarksCount})
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold text-foreground mb-2">
+                    Bookmarks {bookmarksCount > 0 && (`(${bookmarksCount})`)}
                 </h1>
-                < p className="text-muted-foreground" >
+                <p className="text-muted-foreground">
                     Your saved hadith for quick reference
                 </p>
             </div>
@@ -224,14 +224,14 @@ export function BookmarksPage() {
 
                         {/* Actions */}
                         <div className="ml-auto flex gap-2" >
-                            <Button variant="ghost" size="sm" onClick={handleExport} >
+                            {/* <Button variant="ghost" size="sm" onClick={handleExport} >
                                 <Download className="w-4 h-4 mr-2" />
                                 Export
                             </Button>
                             < Button variant="ghost" size="sm" onClick={handleImport} >
                                 <Upload className="w-4 h-4 mr-2" />
                                 Import
-                            </Button>
+                            </Button> */}
                             {
                                 bookmarksCount > 0 && (
                                     <Button
@@ -243,7 +243,7 @@ export function BookmarksPage() {
                                             }
                                         }
                                         }
-                                        className="text-destructive hover:text-destructive"
+                                        className="text-destructive hover:text-destructive flex items-center justify-center"
                                     >
                                         <Trash2 className="w-4 h-4 mr-2" />
                                         Clear All
