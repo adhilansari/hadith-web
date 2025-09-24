@@ -39,7 +39,6 @@ export function useBookmarks() {
                         ? parsed.filter(b => b.id && b.hadithNumber && b.bookKey)
                         : [];
                     setBookmarks(validBookmarks);
-                    console.log('Loaded bookmarks:', validBookmarks.length); // Debug log
                 }
             } catch (error) {
                 console.error('Failed to load bookmarks:', error);
@@ -57,7 +56,6 @@ export function useBookmarks() {
         try {
             localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(newBookmarks));
             setBookmarks(newBookmarks);
-            console.log('Saved bookmarks:', newBookmarks.length); // Debug log
         } catch (error) {
             console.error('Failed to save bookmarks:', error);
             throw new Error('Failed to save bookmark. Storage might be full.');
@@ -87,7 +85,6 @@ export function useBookmarks() {
 
             // Check if already bookmarked
             if (bookmarks.some(b => b.id === id)) {
-                console.log('Already bookmarked:', id);
                 return false; // Already bookmarked
             }
 
@@ -129,7 +126,6 @@ export function useBookmarks() {
 
             const newBookmarks = [newBookmark, ...bookmarks];
             saveBookmarks(newBookmarks);
-            console.log('Added bookmark:', newBookmark); // Debug log
             return true;
         } catch (error) {
             console.error('Failed to add bookmark:', error);
@@ -139,7 +135,6 @@ export function useBookmarks() {
 
     // Remove bookmark
     const removeBookmark = useCallback((bookmarkId: string) => {
-        console.log('Removing bookmark:', bookmarkId);
         const newBookmarks = bookmarks.filter(b => b.id !== bookmarkId);
         saveBookmarks(newBookmarks);
     }, [bookmarks, saveBookmarks]);

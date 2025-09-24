@@ -44,12 +44,10 @@ export function LanguageSelector({
         // Check if Malayalam edition is available
         if (editions && currentBook) {
             const edition = editions[currentBook as keyof typeof editions];
-            console.log('Current book edition:', edition);
             if (edition) {
                 const hasMalayalam = edition.collection.some(collection =>
                     extractLanguageCode(collection.name) === 'mal'
                 );
-                console.log('Malayalam available:', hasMalayalam);
                 if (hasMalayalam) {
                     langs.push({
                         code: 'mal',
