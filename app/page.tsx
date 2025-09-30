@@ -3,9 +3,20 @@
 import { BookCard } from '@/components/hadith/BookCard';
 import { Loading } from '@/components/ui/Loading';
 import { useEditions } from '@/lib/hooks/useHadith';
+import { useSettings } from '@/lib/hooks/useSettings';
+import { useEffect } from 'react';
 
 export default function HomePage() {
   const { data: editions, error, isLoading } = useEditions();
+  const { setLanguage } = useSettings();
+
+  // ✅ Reset language on home load
+  useEffect(() => {
+    setLanguage('eng');
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('selectedLanguage', 'eng');
+    }
+  }, [setLanguage]);
 
   if (isLoading) return <Loading />;
 
