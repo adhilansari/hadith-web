@@ -155,7 +155,6 @@ export function Header() {
                     </div>
                 </div>
             </header>
-
             <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
             <AdminLoginModal
                 isOpen={loginModalOpen}
