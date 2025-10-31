@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/Card';
 import { useSettings } from '@/lib/hooks/useSettings';
 import { useEditions } from '@/lib/hooks/useHadith';
 import type { ILanguageOption } from '@/lib/types/hadith';
-import { extractLanguageCode, LANGUAGE_NAMES } from '@/lib/utils/languageExtractor';
+import { extractLanguageCode } from '@/lib/utils/languageExtractor';
 
 interface LanguageSelectorProps {
     bookKey?: string;

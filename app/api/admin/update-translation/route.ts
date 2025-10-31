@@ -55,6 +55,7 @@ export async function POST(request: NextRequest) {
 
         // Update hadith
         const hadithIndex = jsonData.hadiths.findIndex(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (h: any) => h.hadithnumber === hadithNumber
         );
 

@@ -60,6 +60,7 @@ export function HadithCard({
     onTranslationUpdate,
 }: HadithCardProps) {
     const [copied, setCopied] = useState(false);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [shareSuccess, setShareSuccess] = useState(false);
     const [editorOpen, setEditorOpen] = useState(false);
     const { fontSize, arabicFontSize, showGrades, showReferences, language } = useSettings();

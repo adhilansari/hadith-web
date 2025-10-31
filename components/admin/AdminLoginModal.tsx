@@ -32,7 +32,7 @@ export function AdminLoginModal({ isOpen, onClose, onLogin }: AdminLoginModalPro
             } else {
                 setError('Invalid credentials');
             }
-        } catch (err) {
+        } catch {
             setError('Login failed. Please try again.');
         } finally {
             setLoading(false);

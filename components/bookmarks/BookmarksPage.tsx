@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Search, BookmarkX, Download, Upload, Trash2, Calendar, Book, List, FileText, Hash, Tag } from 'lucide-react';
+import { Search, BookmarkX, Trash2, Calendar, Book, List, FileText, Hash, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useBookmarks, Bookmark } from '@/lib/hooks/useBookmarks';
@@ -17,8 +17,6 @@ export function BookmarksPage() {
         updateBookmarkTags,
         clearBookmarks,
         searchBookmarks,
-        exportBookmarks,
-        importBookmarks,
         bookmarksCount
     } = useBookmarks();
 
@@ -75,41 +73,41 @@ export function BookmarksPage() {
     };
 
     // Handle export
-    const handleExport = () => {
-        const data = exportBookmarks();
-        const blob = new Blob([data], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `hadith-bookmarks-${new Date().toISOString().split('T')[0]}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    };
+    // const handleExport = () => {
+    //     const data = exportBookmarks();
+    //     const blob = new Blob([data], { type: 'application/json' });
+    //     const url = URL.createObjectURL(blob);
+    //     const a = document.createElement('a');
+    //     a.href = url;
+    //     a.download = `hadith-bookmarks-${new Date().toISOString().split('T')[0]}.json`;
+    //     document.body.appendChild(a);
+    //     a.click();
+    //     document.body.removeChild(a);
+    //     URL.revokeObjectURL(url);
+    // };
 
     // Handle import
-    const handleImport = () => {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.json';
-        input.onchange = (e) => {
-            const file = (e.target as HTMLInputElement).files?.[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const content = e.target?.result as string;
-                    if (importBookmarks(content)) {
-                        alert('Bookmarks imported successfully!');
-                    } else {
-                        alert('Failed to import bookmarks. Please check the file format.');
-                    }
-                };
-                reader.readAsText(file);
-            }
-        };
-        input.click();
-    };
+    // const handleImport = () => {
+    //     const input = document.createElement('input');
+    //     input.type = 'file';
+    //     input.accept = '.json';
+    //     input.onchange = (e) => {
+    //         const file = (e.target as HTMLInputElement).files?.[0];
+    //         if (file) {
+    //             const reader = new FileReader();
+    //             reader.onload = (e) => {
+    //                 const content = e.target?.result as string;
+    //                 if (importBookmarks(content)) {
+    //                     alert('Bookmarks imported successfully!');
+    //                 } else {
+    //                     alert('Failed to import bookmarks. Please check the file format.');
+    //                 }
+    //             };
+    //             reader.readAsText(file);
+    //         }
+    //     };
+    //     input.click();
+    // };
 
     // Handle notes editing
     const handleEditNotes = (bookmark: Bookmark) => {

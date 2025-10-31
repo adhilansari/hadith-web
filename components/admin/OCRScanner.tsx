@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Camera, Upload, X, Loader2 } from 'lucide-react';
+import { Camera, Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import Tesseract from 'tesseract.js';
+import Image from 'next/image';
 
 interface OCRScannerProps {
     onTextExtracted: (text: string) => void;
@@ -83,7 +84,7 @@ export function OCRScanner({ onTextExtracted, language = 'mal' }: OCRScannerProp
         <div className="space-y-4">
             {previewImage && (
                 <div className="relative border border-border rounded-lg overflow-hidden">
-                    <img
+                    <Image
                         src={previewImage}
                         alt="Preview"
                         className="w-full h-auto max-h-64 object-contain"

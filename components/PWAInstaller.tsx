@@ -53,7 +53,7 @@ export function PWAInstaller() {
                     } else {
                         console.warn(`Icon missing: icon-${size}x${size}.png`);
                     }
-                } catch (error) {
+                } catch {
                     console.warn(`Failed to validate icon: icon-${size}x${size}.png`);
                 }
             }

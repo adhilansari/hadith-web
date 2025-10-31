@@ -22,7 +22,7 @@ export function useAdmin() {
             try {
                 const stored = localStorage.getItem(ADMIN_STORAGE_KEY);
                 if (stored) {
-                    const { token, expiry } = JSON.parse(stored);
+                    const { expiry } = JSON.parse(stored);
                     if (Date.now() < expiry) {
                         setAdminState({ isAuthenticated: true, isLoading: false });
                         return;
