@@ -39,7 +39,7 @@ export function useAdmin() {
 
     const login = async (username: string, password: string): Promise<boolean> => {
         try {
-            console.log('Attempting login with:', { username, password });
+            console.log('Attempting login with:', { ADMIN_USERNAME, ADMIN_PASSWORD });
             if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
                 const token = btoa(`${username}:${Date.now()}`);
                 const expiry = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
