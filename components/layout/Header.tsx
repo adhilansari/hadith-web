@@ -1,19 +1,23 @@
 'use client';
 
 import { useState } from 'react';
-import { Menu, Moon, Sun, Monitor, Palette, Bookmark, MenuIcon } from 'lucide-react';
+import { Menu, Moon, Sun, Monitor, Palette, Bookmark, MenuIcon, Shield, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { SearchBar } from '@/components/search/SearchBar';
 import { useTheme } from '@/lib/hooks/useTheme';
 import { useBookmarks } from '@/lib/hooks/useBookmarks';
+import { useAdmin } from '@/lib/hooks/useAdmin';
+import { AdminLoginModal } from '@/components/admin/AdminLoginModal';
 import { Sidebar } from './Sidebar';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export function Header() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [loginModalOpen, setLoginModalOpen] = useState(false);
     const { theme, toggleBasicTheme, cycleColorThemes } = useTheme();
     const { bookmarksCount } = useBookmarks();
+    const { isAuthenticated, login, logout } = useAdmin();
     const router = useRouter();
 
     const getThemeIcon = () => {
@@ -25,7 +29,6 @@ export function Header() {
             case 'system':
                 return <Monitor className="w-5 h-5" />;
             default:
-                // For color themes, show palette icon
                 return <Palette className="w-5 h-5" />;
         }
     };
@@ -53,6 +56,14 @@ export function Header() {
         router.push('/bookmarks');
     };
 
+    const handleAdminClick = () => {
+        if (isAuthenticated) {
+            logout();
+        } else {
+            setLoginModalOpen(true);
+        }
+    };
+
     return (
         <>
             <header className="sticky top-0 z-40 w-full border-b border-border glassmorphism">
@@ -73,13 +84,28 @@ export function Header() {
                             </Link>
                         </div>
 
-                        {/* Contextual Search Bar */}
                         <div className="flex-1 max-w-md mx-4">
                             <SearchBar compact={true} />
                         </div>
 
                         <div className="items-center hidden md:flex gap-2">
-                            {/* Bookmarks Button */}
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleAdminClick}
+                                className={`transition-colors duration-200 ${isAuthenticated
+                                    ? 'text-emerald-500 hover:text-emerald-600'
+                                    : 'text-muted-foreground hover:text-primary'
+                                    }`}
+                                title={isAuthenticated ? 'Logout (Admin)' : 'Admin Login'}
+                            >
+                                {isAuthenticated ? (
+                                    <LogOut className="w-5 h-5" />
+                                ) : (
+                                    <Shield className="w-5 h-5" />
+                                )}
+                            </Button>
+
                             <Button
                                 variant="ghost"
                                 size="sm"
@@ -95,7 +121,6 @@ export function Header() {
                                 )}
                             </Button>
 
-                            {/* Theme Toggle Button */}
                             <Button
                                 variant="ghost"
                                 size="sm"
@@ -106,7 +131,6 @@ export function Header() {
                                 {getThemeIcon()}
                             </Button>
 
-                            {/* Color Theme Cycle Button (only show for color themes) */}
                             {!['light', 'dark', 'system'].includes(theme) && (
                                 <Button
                                     variant="ghost"
@@ -133,6 +157,11 @@ export function Header() {
             </header>
 
             <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+            <AdminLoginModal
+                isOpen={loginModalOpen}
+                onClose={() => setLoginModalOpen(false)}
+                onLogin={login}
+            />
         </>
     );
 }

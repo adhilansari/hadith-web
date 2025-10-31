@@ -13,8 +13,10 @@ export default function HomePage() {
   // ✅ Reset language on home load
   useEffect(() => {
     setLanguage('eng');
+    console.log('Language set to English (eng)');
     if (typeof window !== 'undefined') {
       localStorage.setItem('selectedLanguage', 'eng');
+      console.log('Language reset to English (eng)');
     }
   }, [setLanguage]);
 
