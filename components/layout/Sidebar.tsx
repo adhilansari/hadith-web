@@ -1,6 +1,6 @@
 'use client';
 
-import { X, Book, Palette, Type, Download, Smartphone, Share, Monitor, Chrome, Globe, RefreshCw, Bug, Zap, Sun, Moon, Bookmark } from 'lucide-react';
+import { X, Book, Palette, Type, Download, Smartphone, Share, Monitor, Chrome, Globe, RefreshCw, Bug, Zap, Sun, Moon, Bookmark, LogOut, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useSettings } from '@/lib/hooks/useSettings';
@@ -9,6 +9,8 @@ import { usePWAInstall } from '@/lib/hooks/usePWAInstall';
 import { useCallback, useEffect, useState } from 'react';
 import { useTheme } from '@/lib/hooks/useTheme';
 import { useRouter } from 'next/navigation';
+import { useAdmin } from '@/lib/hooks/useAdmin';
+import { AdminLoginModal } from '../admin/AdminLoginModal';
 
 interface SidebarProps {
     open: boolean;
@@ -119,6 +121,20 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     const handleBookmarksClick = () => {
         router.push('/bookmarks');
         onClose();
+    };
+
+    const { isAuthenticated, login, logout } = useAdmin();
+    const [loginModalOpen, setLoginModalOpen] = useState(false);
+
+
+
+
+    const handleAdminClick = () => {
+        if (isAuthenticated) {
+            logout();
+        } else {
+            setLoginModalOpen(true);
+        }
     };
 
     if (!isClient || !_hasHydrated || !open) {
@@ -453,6 +469,29 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
                         <Card>
                             <div className="flex items-center gap-2 mb-2">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={handleAdminClick}
+                                    className={`transition-colors duration-200 ${isAuthenticated
+                                        ? 'text-emerald-500 hover:text-emerald-600'
+                                        : 'text-muted-foreground hover:text-primary'
+                                        }`}
+                                    title={isAuthenticated ? 'Logout (Admin)' : 'Admin Login'}
+                                >
+                                    {isAuthenticated ? (
+                                        <LogOut className="w-5 h-5" />
+                                    ) : (
+                                        <Shield className="w-5 h-5" />
+                                    )}
+                                </Button>
+                                <h3 className="font-medium">Admin</h3>
+                            </div>
+
+                        </Card>
+
+                        <Card>
+                            <div className="flex items-center gap-2 mb-2">
                                 <Book className="w-4 h-4 text-primary" />
                                 <h3 className="font-medium">About</h3>
                             </div>
@@ -463,6 +502,11 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                     </div>
                 </div>
             </div>
+            <AdminLoginModal
+                isOpen={loginModalOpen}
+                onClose={() => setLoginModalOpen(false)}
+                onLogin={login}
+            />
         </>
     );
 }
